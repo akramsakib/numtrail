@@ -28,6 +28,10 @@
 
   if (cfg.repoUrl) el.repoLink.href = cfg.repoUrl;
 
+  const PLURAL_LABEL = {
+    found: "found", not_found: "not found", blocked: "blocked",
+    rate_limited: "rate limited", needs_credentials: "need a key", error: "errored",
+  };
   const STATUS_LABEL = {
     found: "found", not_found: "not found", rate_limited: "rate limited",
     blocked: "blocked", needs_credentials: "needs a key", error: "error",
@@ -118,6 +122,10 @@
     let applied = 0;
     for (const r of entry.results) {
       if (r.status === "skipped") continue;
+      // the offline probe runs right here, in this browser, every time — it is
+      // fresher than anything committed, so the snapshot must not overwrite it.
+      const seen = state.results.get(r.module);
+      if (seen && seen.local) continue;
       const card = el.grid.querySelector(`[data-site="${r.module}"]`);
       if (!card) continue;
       const stamp = `snapshot ${relTime(entry.probed_at)}`;
@@ -343,6 +351,7 @@
         if (card.dataset.automated !== "1") continue;
         const site = state.catalog.find((x) => x.id === card.dataset.site);
         if (site && site.offline) continue;
+        if (state.results.has(card.dataset.site)) continue; // snapshot answered it
         card.dataset.status = "skipped";
         card.classList.remove("pending");
         const label = card.querySelector(".status span");
@@ -353,13 +362,23 @@
       state.running = false;
       el.run.disabled = false;
       const live = [...state.results.values()];
-      const offline = live.filter((r) => r.local).length;
-      const network = live.length - offline;
-      if (network > 0) {
+      const offline = state.catalog.filter((s) => s.offline && s.probe && state.results.has(s.id)).length;
+      const network = live.filter((r) => !r.local);
+      if (network.length > 0) {
+        const tally = {};
+        for (const r of network) tally[r.status] = (tally[r.status] || 0) + 1;
+        const parts = Object.entries(tally)
+          .sort((a, b) => b[1] - a[1])
+          .map(([k, n]) => `${n} ${(n === 1 ? STATUS_LABEL[k] || k : PLURAL_LABEL[k] || k)}`);
+        const keys = network.filter((r) => r.status === "needs_credentials").length;
         setNotice(
-          `${network} result${network === 1 ? "" : "s"} from the GitHub snapshot` +
+          `${network.length} of ${state.automated} from the GitHub snapshot` +
           (state.snapshots ? ` (${relTime(state.snapshots.generated_at)})` : "") +
-          ` · ${offline} offline · add this number to watchlist.txt for more`,
+          ` — ${parts.join(", ")}` +
+          ` · the offline probe answers live` +
+          (keys > 0
+            ? `. ${keys} need an API key: add NUMVERIFY_KEY or PROXY_URL as a repo secret and the runner will ask them itself`
+            : `. add a number to watchlist.txt to have it probed on a schedule`),
           ""
         );
       } else if (offline > 0) {
@@ -456,10 +475,30 @@
     // Offline probes still run, so the button stays live — a number like +60…
     // gets a real answer even on a static-only deploy.
     el.run.disabled = false;
+
+    // There is a backend, just not a live one: GitHub Actions committed results
+    // for watchlist.txt. Say that instead of claiming there is nothing at all.
+    const snapCount = state.snapshots && state.snapshots.entries
+      ? Object.keys(state.snapshots.entries).length : 0;
+    if (snapCount > 0) {
+      const h = document.getElementById("setup-title");
+      if (h) h.textContent = "Results come from the GitHub Actions snapshot";
+      const lede = document.querySelector("#setup p");
+      if (lede) {
+        lede.innerHTML =
+          `Nobody is answering live: GitHub Pages serves files only, so it cannot make the ` +
+          `outbound requests these checks need. Instead a scheduled workflow in this repo ` +
+          `probes <code>watchlist.txt</code> (${snapCount} number${snapCount === 1 ? "" : "s"}), ` +
+          `commits <code>snapshots.json</code>, and this page reads it. ` +
+          `The <strong>offline Malaysian numbering probe runs here, live</strong>, on any number. ` +
+          `For live answers on every number, attach one of these:`;
+      }
+    }
     for (const card of el.grid.children) {
       if (card.dataset.automated !== "1") continue;
       const site = state.catalog.find((x) => x.id === card.dataset.site);
       if (site && site.offline) continue;
+      if (state.results.has(card.dataset.site)) continue; // snapshot answered it
       card.dataset.status = "skipped";
       card.classList.remove("pending");
       const label = card.querySelector(".status span");

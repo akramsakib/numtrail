@@ -1,7 +1,7 @@
 # numtrail web
 
 The browser version of numtrail: enter a number with its dial code, watch 16
-probes fire in parallel, filter by outcome. 160 services are catalogued; the 145
+probes fire in parallel, filter by outcome. 161 services are catalogued; the 145
 that can't be automated are one click away behind the "everything" chip.
 
 ```
