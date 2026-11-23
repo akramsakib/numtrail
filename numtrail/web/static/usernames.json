@@ -1,8 +1,616 @@
 {
  "generator": "numtrail.usercheck",
- "generated_at": "2026-11-23T10:07:15Z",
- "latest": "sakib112",
+ "generated_at": "2026-11-23T10:09:21Z",
+ "latest": "akram",
  "usernames": {
+  "akram": {
+   "database": "sherlock",
+   "generated_at": "2026-11-23T10:09:21Z",
+   "checked": 60,
+   "conclusive": 35,
+   "results": [
+    {
+     "site": "1337x",
+     "domain": "www.1337x.to",
+     "status": "blocked",
+     "found": false,
+     "url": "https://www.1337x.to/user/akram/",
+     "detail": "HTTP 403",
+     "elapsed": 0.091,
+     "source": "sherlock"
+    },
+    {
+     "site": "2Dimensions",
+     "domain": "2Dimensions.com",
+     "status": "not_found",
+     "found": false,
+     "url": "https://2Dimensions.com/a/akram",
+     "detail": "HTTP 404",
+     "elapsed": 0.382,
+     "source": "sherlock"
+    },
+    {
+     "site": "7Cups",
+     "domain": "www.7cups.com",
+     "status": "error",
+     "found": false,
+     "url": "https://www.7cups.com/@akram",
+     "detail": "HTTP 405",
+     "elapsed": 0.075,
+     "source": "sherlock"
+    },
+    {
+     "site": "9GAG",
+     "domain": "www.9gag.com",
+     "status": "found",
+     "found": true,
+     "url": "https://www.9gag.com/u/akram",
+     "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+     "elapsed": 1.261,
+     "source": "sherlock"
+    },
+    {
+     "site": "APClips",
+     "domain": "apclips.com",
+     "status": "error",
+     "found": false,
+     "url": "https://apclips.com/akram",
+     "detail": "an unused username returns the same page (similarity 1.00) — the absence of an error string proves nothing",
+     "elapsed": 0.475,
+     "source": "sherlock"
+    },
+    {
+     "site": "About.me",
+     "domain": "about.me",
+     "status": "found",
+     "found": true,
+     "url": "https://about.me/akram",
+     "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+     "elapsed": 0.363,
+     "source": "sherlock"
+    },
+    {
+     "site": "Academia.edu",
+     "domain": "www.academia.edu",
+     "status": "blocked",
+     "found": false,
+     "url": "https://independent.academia.edu/akram",
+     "detail": "HTTP 403",
+     "elapsed": 0.108,
+     "source": "sherlock"
+    },
+    {
+     "site": "AdmireMe.Vip",
+     "domain": "admireme.vip",
+     "status": "error",
+     "found": false,
+     "url": "https://admireme.vip/akram",
+     "detail": "HTTP 404",
+     "elapsed": 0.526,
+     "source": "sherlock"
+    },
+    {
+     "site": "Airbit",
+     "domain": "airbit.com",
+     "status": "not_found",
+     "found": false,
+     "url": "https://airbit.com/akram",
+     "detail": "HTTP 404",
+     "elapsed": 0.573,
+     "source": "sherlock"
+    },
+    {
+     "site": "Airliners",
+     "domain": "www.airliners.net",
+     "status": "error",
+     "found": false,
+     "url": "https://www.airliners.net/user/akram/profile/photos",
+     "detail": "HTTP 202",
+     "elapsed": 0.103,
+     "source": "sherlock"
+    },
+    {
+     "site": "All Things Worn",
+     "domain": "www.allthingsworn.com",
+     "status": "found",
+     "found": true,
+     "url": "https://www.allthingsworn.com/profile/akram",
+     "detail": "HTTP 200, none of the listed error strings, and a control username looks different",
+     "elapsed": 0.527,
+     "source": "sherlock"
+    },
+    {
+     "site": "AllMyLinks",
+     "domain": "allmylinks.com",
+     "status": "found",
+     "found": true,
+     "url": "https://allmylinks.com/akram",
+     "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+     "elapsed": 0.691,
+     "source": "sherlock"
+    },
+    {
+     "site": "AniWorld",
+     "domain": "aniworld.to",
+     "status": "found",
+     "found": true,
+     "url": "https://aniworld.to/user/profil/akram",
+     "detail": "HTTP 200, none of the listed error strings, and a control username looks different",
+     "elapsed": 0.484,
+     "source": "sherlock"
+    },
+    {
+     "site": "Anilist",
+     "domain": "anilist.co",
+     "status": "error",
+     "found": false,
+     "url": "https://anilist.co/user/akram/",
+     "detail": "an unused username returns the same page (similarity 1.00) — the absence of an error string proves nothing",
+     "elapsed": 0.175,
+     "source": "sherlock"
+    },
+    {
+     "site": "Apple Developer",
+     "domain": "developer.apple.com",
+     "status": "error",
+     "found": false,
+     "url": "https://developer.apple.com/forums/profile/akram",
+     "detail": "an unused username returns the same page (similarity 1.00) — the absence of an error string proves nothing",
+     "elapsed": 0.672,
+     "source": "sherlock"
+    },
+    {
+     "site": "Apple Discussions",
+     "domain": "discussions.apple.com",
+     "status": "error",
+     "found": false,
+     "url": "https://discussions.apple.com/profile/akram",
+     "detail": "an unused username returns the same page (similarity 1.00) — the absence of an error string proves nothing",
+     "elapsed": 0.357,
+     "source": "sherlock"
+    },
+    {
+     "site": "Aparat",
+     "domain": "www.aparat.com",
+     "status": "error",
+     "found": false,
+     "url": "https://www.aparat.com/akram/",
+     "detail": "an unused username returns the same page (similarity 1.00) — the absence of an error string proves nothing",
+     "elapsed": 0.709,
+     "source": "sherlock"
+    },
+    {
+     "site": "Archive of Our Own",
+     "domain": "archiveofourown.org",
+     "status": "rate_limited",
+     "found": false,
+     "url": "https://archiveofourown.org/users/akram",
+     "detail": "HTTP 429",
+     "elapsed": 0.349,
+     "source": "sherlock"
+    },
+    {
+     "site": "Archive.org",
+     "domain": "archive.org",
+     "status": "error",
+     "found": false,
+     "url": "https://archive.org/details/@akram",
+     "detail": "client-rendered shell: no error string either way, so this cannot be verified (sherlock would say found)",
+     "elapsed": 0.113,
+     "source": "sherlock"
+    },
+    {
+     "site": "Arduino Forum",
+     "domain": "forum.arduino.cc",
+     "status": "not_found",
+     "found": false,
+     "url": "https://forum.arduino.cc/u/akram/summary",
+     "detail": "HTTP 404",
+     "elapsed": 0.482,
+     "source": "sherlock"
+    },
+    {
+     "site": "ArtStation",
+     "domain": "www.artstation.com",
+     "status": "blocked",
+     "found": false,
+     "url": "https://www.artstation.com/akram",
+     "detail": "HTTP 403",
+     "elapsed": 0.094,
+     "source": "sherlock"
+    },
+    {
+     "site": "Asciinema",
+     "domain": "asciinema.org",
+     "status": "error",
+     "found": false,
+     "url": "https://asciinema.org/~akram",
+     "detail": "timeout",
+     "elapsed": 15.006,
+     "source": "sherlock"
+    },
+    {
+     "site": "Ask Fedora",
+     "domain": "ask.fedoraproject.org",
+     "status": "not_found",
+     "found": false,
+     "url": "https://ask.fedoraproject.org/u/akram",
+     "detail": "HTTP 404",
+     "elapsed": 0.508,
+     "source": "sherlock"
+    },
+    {
+     "site": "Atcoder",
+     "domain": "atcoder.jp",
+     "status": "found",
+     "found": true,
+     "url": "https://atcoder.jp/users/akram",
+     "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+     "elapsed": 0.151,
+     "source": "sherlock"
+    },
+    {
+     "site": "Vjudge",
+     "domain": "VJudge.net",
+     "status": "found",
+     "found": true,
+     "url": "https://VJudge.net/user/akram",
+     "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+     "elapsed": 0.227,
+     "source": "sherlock"
+    },
+    {
+     "site": "Audiojungle",
+     "domain": "audiojungle.net",
+     "status": "found",
+     "found": true,
+     "url": "https://audiojungle.net/user/akram",
+     "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+     "elapsed": 0.205,
+     "source": "sherlock"
+    },
+    {
+     "site": "Autofrage",
+     "domain": "www.autofrage.net",
+     "status": "blocked",
+     "found": false,
+     "url": "https://www.autofrage.net/nutzer/akram",
+     "detail": "HTTP 403",
+     "elapsed": 0.087,
+     "source": "sherlock"
+    },
+    {
+     "site": "Avizo",
+     "domain": "www.avizo.cz",
+     "status": "found",
+     "found": true,
+     "url": "https://www.avizo.cz/akram/",
+     "detail": "the profile URL answered without redirecting",
+     "elapsed": 0.228,
+     "source": "sherlock"
+    },
+    {
+     "site": "AWS Skills Profile",
+     "domain": "skillsprofile.skillbuilder.aws",
+     "status": "error",
+     "found": false,
+     "url": "https://skillsprofile.skillbuilder.aws/user/akram/",
+     "detail": "client-rendered shell: no error string either way, so this cannot be verified (sherlock would say found)",
+     "elapsed": 0.807,
+     "source": "sherlock"
+    },
+    {
+     "site": "BOOTH",
+     "domain": "booth.pm",
+     "status": "found",
+     "found": true,
+     "url": "https://akram.booth.pm/",
+     "detail": "the profile URL answered without redirecting",
+     "elapsed": 0.101,
+     "source": "sherlock"
+    },
+    {
+     "site": "Bandcamp",
+     "domain": "www.bandcamp.com",
+     "status": "error",
+     "found": false,
+     "url": "https://www.bandcamp.com/akram",
+     "detail": "an unused username returns the same page (similarity 1.00) — the absence of an error string proves nothing",
+     "elapsed": 0.124,
+     "source": "sherlock"
+    },
+    {
+     "site": "Bazar.cz",
+     "domain": "www.bazar.cz",
+     "status": "not_found",
+     "found": false,
+     "url": "https://www.bazar.cz/akram/",
+     "detail": "redirected to https://www.bazar.cz/error404.aspx",
+     "elapsed": 2.281,
+     "source": "sherlock"
+    },
+    {
+     "site": "Behance",
+     "domain": "www.behance.net",
+     "status": "blocked",
+     "found": false,
+     "url": "https://www.behance.net/akram",
+     "detail": "HTTP 403",
+     "elapsed": 0.117,
+     "source": "sherlock"
+    },
+    {
+     "site": "Bezuzyteczna",
+     "domain": "bezuzyteczna.pl",
+     "status": "not_found",
+     "found": false,
+     "url": "https://bezuzyteczna.pl/uzytkownicy/akram",
+     "detail": "HTTP 404",
+     "elapsed": 0.5,
+     "source": "sherlock"
+    },
+    {
+     "site": "BiggerPockets",
+     "domain": "www.biggerpockets.com",
+     "status": "found",
+     "found": true,
+     "url": "https://www.biggerpockets.com/users/akram",
+     "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+     "elapsed": 0.416,
+     "source": "sherlock"
+    },
+    {
+     "site": "BioHacking",
+     "domain": "forum.dangerousthings.com",
+     "status": "not_found",
+     "found": false,
+     "url": "https://forum.dangerousthings.com/u/akram",
+     "detail": "HTTP 404",
+     "elapsed": 0.422,
+     "source": "sherlock"
+    },
+    {
+     "site": "BitBucket",
+     "domain": "bitbucket.org",
+     "status": "not_found",
+     "found": false,
+     "url": "https://bitbucket.org/akram/",
+     "detail": "HTTP 404",
+     "elapsed": 0.295,
+     "source": "sherlock"
+    },
+    {
+     "site": "Bitwarden Forum",
+     "domain": "bitwarden.com",
+     "status": "not_found",
+     "found": false,
+     "url": "https://community.bitwarden.com/u/akram/summary",
+     "detail": "HTTP 404",
+     "elapsed": 0.204,
+     "source": "sherlock"
+    },
+    {
+     "site": "Blipfoto",
+     "domain": "www.blipfoto.com",
+     "status": "not_found",
+     "found": false,
+     "url": "https://www.blipfoto.com/akram",
+     "detail": "HTTP 404",
+     "elapsed": 0.577,
+     "source": "sherlock"
+    },
+    {
+     "site": "Blitz Tactics",
+     "domain": "blitztactics.com",
+     "status": "error",
+     "found": false,
+     "url": "https://blitztactics.com/akram",
+     "detail": "HTTP 404",
+     "elapsed": 0.188,
+     "source": "sherlock"
+    },
+    {
+     "site": "Blogger",
+     "domain": "www.blogger.com",
+     "status": "not_found",
+     "found": false,
+     "url": "https://akram.blogspot.com",
+     "detail": "HTTP 404",
+     "elapsed": 0.268,
+     "source": "sherlock"
+    },
+    {
+     "site": "Bluesky",
+     "domain": "bsky.app",
+     "status": "found",
+     "found": true,
+     "url": "https://bsky.app/profile/akram.bsky.social",
+     "detail": "HTTP 200",
+     "elapsed": 0.411,
+     "source": "sherlock"
+    },
+    {
+     "site": "BongaCams",
+     "domain": "pt.bongacams.com",
+     "status": "blocked",
+     "found": false,
+     "url": "https://pt.bongacams.com/profile/akram",
+     "detail": "HTTP 403",
+     "elapsed": 0.274,
+     "source": "sherlock"
+    },
+    {
+     "site": "Bookcrossing",
+     "domain": "www.bookcrossing.com",
+     "status": "not_found",
+     "found": false,
+     "url": "https://www.bookcrossing.com/mybookshelf/akram/",
+     "detail": "HTTP 404",
+     "elapsed": 9.805,
+     "source": "sherlock"
+    },
+    {
+     "site": "BoardGameGeek",
+     "domain": "boardgamegeek.com",
+     "status": "blocked",
+     "found": false,
+     "url": "https://boardgamegeek.com/user/akram",
+     "detail": "HTTP 403",
+     "elapsed": 0.105,
+     "source": "sherlock"
+    },
+    {
+     "site": "BraveCommunity",
+     "domain": "community.brave.com",
+     "status": "found",
+     "found": true,
+     "url": "https://community.brave.com/u/akram/",
+     "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+     "elapsed": 0.337,
+     "source": "sherlock"
+    },
+    {
+     "site": "BreachSta.rs Forum",
+     "domain": "breachsta.rs",
+     "status": "error",
+     "found": false,
+     "url": "https://breachsta.rs/profile/akram",
+     "detail": "ConnectError: [Errno -2] Name or service not known",
+     "elapsed": 0.064,
+     "source": "sherlock"
+    },
+    {
+     "site": "BugCrowd",
+     "domain": "bugcrowd.com",
+     "status": "found",
+     "found": true,
+     "url": "https://bugcrowd.com/akram",
+     "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+     "elapsed": 0.498,
+     "source": "sherlock"
+    },
+    {
+     "site": "BuyMeACoffee",
+     "domain": "www.buymeacoffee.com",
+     "status": "found",
+     "found": true,
+     "url": "https://buymeacoff.ee/akram",
+     "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+     "elapsed": 0.724,
+     "source": "sherlock"
+    },
+    {
+     "site": "BuzzFeed",
+     "domain": "buzzfeed.com",
+     "status": "error",
+     "found": false,
+     "url": "https://buzzfeed.com/akram",
+     "detail": "HTTP 406",
+     "elapsed": 0.2,
+     "source": "sherlock"
+    },
+    {
+     "site": "Cfx.re Forum",
+     "domain": "forum.cfx.re",
+     "status": "not_found",
+     "found": false,
+     "url": "https://forum.cfx.re/u/akram/summary",
+     "detail": "HTTP 404",
+     "elapsed": 0.378,
+     "source": "sherlock"
+    },
+    {
+     "site": "CGTrader",
+     "domain": "www.cgtrader.com",
+     "status": "found",
+     "found": true,
+     "url": "https://www.cgtrader.com/akram",
+     "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+     "elapsed": 0.634,
+     "source": "sherlock"
+    },
+    {
+     "site": "CNET",
+     "domain": "www.cnet.com",
+     "status": "not_found",
+     "found": false,
+     "url": "https://www.cnet.com/profiles/akram/",
+     "detail": "HTTP 404",
+     "elapsed": 0.528,
+     "source": "sherlock"
+    },
+    {
+     "site": "CSSBattle",
+     "domain": "cssbattle.dev",
+     "status": "error",
+     "found": false,
+     "url": "https://cssbattle.dev/player/akram",
+     "detail": "an unused username returns the same page (similarity 0.91) — the absence of an error string proves nothing",
+     "elapsed": 0.348,
+     "source": "sherlock"
+    },
+    {
+     "site": "CTAN",
+     "domain": "ctan.org",
+     "status": "not_found",
+     "found": false,
+     "url": "https://ctan.org/author/akram",
+     "detail": "HTTP 404",
+     "elapsed": 0.672,
+     "source": "sherlock"
+    },
+    {
+     "site": "Caddy Community",
+     "domain": "caddy.community",
+     "status": "not_found",
+     "found": false,
+     "url": "https://caddy.community/u/akram/summary",
+     "detail": "HTTP 404",
+     "elapsed": 0.538,
+     "source": "sherlock"
+    },
+    {
+     "site": "Car Talk Community",
+     "domain": "community.cartalk.com",
+     "status": "not_found",
+     "found": false,
+     "url": "https://community.cartalk.com/u/akram/summary",
+     "detail": "HTTP 404",
+     "elapsed": 0.252,
+     "source": "sherlock"
+    },
+    {
+     "site": "Carbonmade",
+     "domain": "carbonmade.com",
+     "status": "found",
+     "found": true,
+     "url": "https://akram.carbonmade.com",
+     "detail": "the profile URL answered without redirecting",
+     "elapsed": 0.121,
+     "source": "sherlock"
+    },
+    {
+     "site": "Carrd",
+     "domain": "carrd.co",
+     "status": "found",
+     "found": true,
+     "url": "https://akram.carrd.co/",
+     "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+     "elapsed": 0.399,
+     "source": "sherlock"
+    },
+    {
+     "site": "Career.habr",
+     "domain": "career.habr.com",
+     "status": "error",
+     "found": false,
+     "url": "https://career.habr.com/akram",
+     "detail": "HTTP 404",
+     "elapsed": 1.043,
+     "source": "sherlock"
+    }
+   ]
+  },
   "sakib112": {
    "database": "sherlock",
    "generated_at": "2026-11-23T10:07:15Z",
