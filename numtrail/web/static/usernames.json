@@ -1,0 +1,1208 @@
+{
+  "username": "torvalds",
+  "database": "sherlock",
+  "checked": 120,
+  "conclusive": 56,
+  "results": [
+    {
+      "site": "1337x",
+      "domain": "www.1337x.to",
+      "status": "blocked",
+      "found": false,
+      "url": "https://www.1337x.to/user/torvalds/",
+      "detail": "HTTP 403",
+      "elapsed": 0.081,
+      "source": "sherlock"
+    },
+    {
+      "site": "2Dimensions",
+      "domain": "2Dimensions.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://2Dimensions.com/a/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.272,
+      "source": "sherlock"
+    },
+    {
+      "site": "7Cups",
+      "domain": "www.7cups.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://www.7cups.com/@torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.048,
+      "source": "sherlock"
+    },
+    {
+      "site": "9GAG",
+      "domain": "www.9gag.com",
+      "status": "found",
+      "found": true,
+      "url": "https://www.9gag.com/u/torvalds",
+      "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+      "elapsed": 0.354,
+      "source": "sherlock"
+    },
+    {
+      "site": "APClips",
+      "domain": "apclips.com",
+      "status": "error",
+      "found": false,
+      "url": "https://apclips.com/torvalds",
+      "detail": "an unused username returns the same page (similarity 1.00) \u2014 the absence of an error string proves nothing",
+      "elapsed": 0.774,
+      "source": "sherlock"
+    },
+    {
+      "site": "About.me",
+      "domain": "about.me",
+      "status": "not_found",
+      "found": false,
+      "url": "https://about.me/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.399,
+      "source": "sherlock"
+    },
+    {
+      "site": "Academia.edu",
+      "domain": "www.academia.edu",
+      "status": "blocked",
+      "found": false,
+      "url": "https://independent.academia.edu/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.06,
+      "source": "sherlock"
+    },
+    {
+      "site": "AdmireMe.Vip",
+      "domain": "admireme.vip",
+      "status": "error",
+      "found": false,
+      "url": "https://admireme.vip/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.516,
+      "source": "sherlock"
+    },
+    {
+      "site": "Airbit",
+      "domain": "airbit.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://airbit.com/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.552,
+      "source": "sherlock"
+    },
+    {
+      "site": "Airliners",
+      "domain": "www.airliners.net",
+      "status": "error",
+      "found": false,
+      "url": "https://www.airliners.net/user/torvalds/profile/photos",
+      "detail": "HTTP 202",
+      "elapsed": 0.089,
+      "source": "sherlock"
+    },
+    {
+      "site": "All Things Worn",
+      "domain": "www.allthingsworn.com",
+      "status": "error",
+      "found": false,
+      "url": "https://www.allthingsworn.com/profile/torvalds",
+      "detail": "an unused username returns the same page (similarity 1.00) \u2014 the absence of an error string proves nothing",
+      "elapsed": 1.033,
+      "source": "sherlock"
+    },
+    {
+      "site": "AllMyLinks",
+      "domain": "allmylinks.com",
+      "status": "error",
+      "found": false,
+      "url": "https://allmylinks.com/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.537,
+      "source": "sherlock"
+    },
+    {
+      "site": "AniWorld",
+      "domain": "aniworld.to",
+      "status": "blocked",
+      "found": false,
+      "url": "https://aniworld.to/user/profil/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.103,
+      "source": "sherlock"
+    },
+    {
+      "site": "Anilist",
+      "domain": "anilist.co",
+      "status": "error",
+      "found": false,
+      "url": "https://anilist.co/user/torvalds/",
+      "detail": "an unused username returns the same page (similarity 1.00) \u2014 the absence of an error string proves nothing",
+      "elapsed": 0.138,
+      "source": "sherlock"
+    },
+    {
+      "site": "Apple Developer",
+      "domain": "developer.apple.com",
+      "status": "error",
+      "found": false,
+      "url": "https://developer.apple.com/forums/profile/torvalds",
+      "detail": "an unused username returns the same page (similarity 1.00) \u2014 the absence of an error string proves nothing",
+      "elapsed": 0.43,
+      "source": "sherlock"
+    },
+    {
+      "site": "Apple Discussions",
+      "domain": "discussions.apple.com",
+      "status": "error",
+      "found": false,
+      "url": "https://discussions.apple.com/profile/torvalds",
+      "detail": "an unused username returns the same page (similarity 1.00) \u2014 the absence of an error string proves nothing",
+      "elapsed": 0.374,
+      "source": "sherlock"
+    },
+    {
+      "site": "Aparat",
+      "domain": "www.aparat.com",
+      "status": "error",
+      "found": false,
+      "url": "https://www.aparat.com/torvalds/",
+      "detail": "an unused username returns the same page (similarity 1.00) \u2014 the absence of an error string proves nothing",
+      "elapsed": 0.442,
+      "source": "sherlock"
+    },
+    {
+      "site": "Archive of Our Own",
+      "domain": "archiveofourown.org",
+      "status": "rate_limited",
+      "found": false,
+      "url": "https://archiveofourown.org/users/torvalds",
+      "detail": "HTTP 429",
+      "elapsed": 0.445,
+      "source": "sherlock"
+    },
+    {
+      "site": "Archive.org",
+      "domain": "archive.org",
+      "status": "error",
+      "found": false,
+      "url": "https://archive.org/details/@torvalds",
+      "detail": "client-rendered shell: no error string either way, so this cannot be verified (sherlock would say found)",
+      "elapsed": 0.1,
+      "source": "sherlock"
+    },
+    {
+      "site": "Arduino Forum",
+      "domain": "forum.arduino.cc",
+      "status": "found",
+      "found": true,
+      "url": "https://forum.arduino.cc/u/torvalds/summary",
+      "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+      "elapsed": 0.609,
+      "source": "sherlock"
+    },
+    {
+      "site": "ArtStation",
+      "domain": "www.artstation.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://www.artstation.com/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.042,
+      "source": "sherlock"
+    },
+    {
+      "site": "Asciinema",
+      "domain": "asciinema.org",
+      "status": "not_found",
+      "found": false,
+      "url": "https://asciinema.org/~torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.682,
+      "source": "sherlock"
+    },
+    {
+      "site": "Ask Fedora",
+      "domain": "ask.fedoraproject.org",
+      "status": "not_found",
+      "found": false,
+      "url": "https://ask.fedoraproject.org/u/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.36,
+      "source": "sherlock"
+    },
+    {
+      "site": "Atcoder",
+      "domain": "atcoder.jp",
+      "status": "not_found",
+      "found": false,
+      "url": "https://atcoder.jp/users/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.358,
+      "source": "sherlock"
+    },
+    {
+      "site": "Vjudge",
+      "domain": "VJudge.net",
+      "status": "not_found",
+      "found": false,
+      "url": "https://VJudge.net/user/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.185,
+      "source": "sherlock"
+    },
+    {
+      "site": "Audiojungle",
+      "domain": "audiojungle.net",
+      "status": "found",
+      "found": true,
+      "url": "https://audiojungle.net/user/torvalds",
+      "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+      "elapsed": 0.174,
+      "source": "sherlock"
+    },
+    {
+      "site": "Autofrage",
+      "domain": "www.autofrage.net",
+      "status": "blocked",
+      "found": false,
+      "url": "https://www.autofrage.net/nutzer/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.09,
+      "source": "sherlock"
+    },
+    {
+      "site": "Avizo",
+      "domain": "www.avizo.cz",
+      "status": "found",
+      "found": true,
+      "url": "https://www.avizo.cz/torvalds/",
+      "detail": "the profile URL answered without redirecting",
+      "elapsed": 0.046,
+      "source": "sherlock"
+    },
+    {
+      "site": "AWS Skills Profile",
+      "domain": "skillsprofile.skillbuilder.aws",
+      "status": "error",
+      "found": false,
+      "url": "https://skillsprofile.skillbuilder.aws/user/torvalds/",
+      "detail": "client-rendered shell: no error string either way, so this cannot be verified (sherlock would say found)",
+      "elapsed": 0.232,
+      "source": "sherlock"
+    },
+    {
+      "site": "BOOTH",
+      "domain": "booth.pm",
+      "status": "found",
+      "found": true,
+      "url": "https://torvalds.booth.pm/",
+      "detail": "the profile URL answered without redirecting",
+      "elapsed": 0.124,
+      "source": "sherlock"
+    },
+    {
+      "site": "Bandcamp",
+      "domain": "www.bandcamp.com",
+      "status": "error",
+      "found": false,
+      "url": "https://www.bandcamp.com/torvalds",
+      "detail": "an unused username returns the same page (similarity 1.00) \u2014 the absence of an error string proves nothing",
+      "elapsed": 0.089,
+      "source": "sherlock"
+    },
+    {
+      "site": "Bazar.cz",
+      "domain": "www.bazar.cz",
+      "status": "not_found",
+      "found": false,
+      "url": "https://www.bazar.cz/torvalds/",
+      "detail": "redirected to https://www.bazar.cz/error404.aspx",
+      "elapsed": 2.342,
+      "source": "sherlock"
+    },
+    {
+      "site": "Behance",
+      "domain": "www.behance.net",
+      "status": "blocked",
+      "found": false,
+      "url": "https://www.behance.net/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.03,
+      "source": "sherlock"
+    },
+    {
+      "site": "Bezuzyteczna",
+      "domain": "bezuzyteczna.pl",
+      "status": "not_found",
+      "found": false,
+      "url": "https://bezuzyteczna.pl/uzytkownicy/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.437,
+      "source": "sherlock"
+    },
+    {
+      "site": "BiggerPockets",
+      "domain": "www.biggerpockets.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://www.biggerpockets.com/users/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.221,
+      "source": "sherlock"
+    },
+    {
+      "site": "BioHacking",
+      "domain": "forum.dangerousthings.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://forum.dangerousthings.com/u/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.36,
+      "source": "sherlock"
+    },
+    {
+      "site": "BitBucket",
+      "domain": "bitbucket.org",
+      "status": "found",
+      "found": true,
+      "url": "https://bitbucket.org/torvalds/",
+      "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+      "elapsed": 0.521,
+      "source": "sherlock"
+    },
+    {
+      "site": "Bitwarden Forum",
+      "domain": "bitwarden.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://community.bitwarden.com/u/torvalds/summary",
+      "detail": "HTTP 404",
+      "elapsed": 0.078,
+      "source": "sherlock"
+    },
+    {
+      "site": "Blipfoto",
+      "domain": "www.blipfoto.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://www.blipfoto.com/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.515,
+      "source": "sherlock"
+    },
+    {
+      "site": "Blitz Tactics",
+      "domain": "blitztactics.com",
+      "status": "error",
+      "found": false,
+      "url": "https://blitztactics.com/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.255,
+      "source": "sherlock"
+    },
+    {
+      "site": "Blogger",
+      "domain": "www.blogger.com",
+      "status": "rate_limited",
+      "found": false,
+      "url": "https://torvalds.blogspot.com",
+      "detail": "HTTP 429",
+      "elapsed": 0.391,
+      "source": "sherlock"
+    },
+    {
+      "site": "Bluesky",
+      "domain": "bsky.app",
+      "status": "found",
+      "found": true,
+      "url": "https://bsky.app/profile/torvalds.bsky.social",
+      "detail": "HTTP 200",
+      "elapsed": 0.318,
+      "source": "sherlock"
+    },
+    {
+      "site": "BongaCams",
+      "domain": "pt.bongacams.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://pt.bongacams.com/profile/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.195,
+      "source": "sherlock"
+    },
+    {
+      "site": "Bookcrossing",
+      "domain": "www.bookcrossing.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://www.bookcrossing.com/mybookshelf/torvalds/",
+      "detail": "HTTP 404",
+      "elapsed": 0.473,
+      "source": "sherlock"
+    },
+    {
+      "site": "BoardGameGeek",
+      "domain": "boardgamegeek.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://boardgamegeek.com/user/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.062,
+      "source": "sherlock"
+    },
+    {
+      "site": "BraveCommunity",
+      "domain": "community.brave.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://community.brave.com/u/torvalds/",
+      "detail": "HTTP 404",
+      "elapsed": 0.095,
+      "source": "sherlock"
+    },
+    {
+      "site": "BreachSta.rs Forum",
+      "domain": "breachsta.rs",
+      "status": "error",
+      "found": false,
+      "url": "https://breachsta.rs/profile/torvalds",
+      "detail": "ConnectError: [Errno -2] Name or service not known",
+      "elapsed": 0.009,
+      "source": "sherlock"
+    },
+    {
+      "site": "BugCrowd",
+      "domain": "bugcrowd.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://bugcrowd.com/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.281,
+      "source": "sherlock"
+    },
+    {
+      "site": "BuyMeACoffee",
+      "domain": "www.buymeacoffee.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://buymeacoff.ee/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.205,
+      "source": "sherlock"
+    },
+    {
+      "site": "BuzzFeed",
+      "domain": "buzzfeed.com",
+      "status": "error",
+      "found": false,
+      "url": "https://buzzfeed.com/torvalds",
+      "detail": "HTTP 406",
+      "elapsed": 0.15,
+      "source": "sherlock"
+    },
+    {
+      "site": "Cfx.re Forum",
+      "domain": "forum.cfx.re",
+      "status": "not_found",
+      "found": false,
+      "url": "https://forum.cfx.re/u/torvalds/summary",
+      "detail": "HTTP 404",
+      "elapsed": 0.511,
+      "source": "sherlock"
+    },
+    {
+      "site": "CGTrader",
+      "domain": "www.cgtrader.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://www.cgtrader.com/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.812,
+      "source": "sherlock"
+    },
+    {
+      "site": "CNET",
+      "domain": "www.cnet.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://www.cnet.com/profiles/torvalds/",
+      "detail": "HTTP 404",
+      "elapsed": 0.638,
+      "source": "sherlock"
+    },
+    {
+      "site": "CSSBattle",
+      "domain": "cssbattle.dev",
+      "status": "error",
+      "found": false,
+      "url": "https://cssbattle.dev/player/torvalds",
+      "detail": "an unused username returns the same page (similarity 1.00) \u2014 the absence of an error string proves nothing",
+      "elapsed": 0.247,
+      "source": "sherlock"
+    },
+    {
+      "site": "CTAN",
+      "domain": "ctan.org",
+      "status": "not_found",
+      "found": false,
+      "url": "https://ctan.org/author/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.913,
+      "source": "sherlock"
+    },
+    {
+      "site": "Caddy Community",
+      "domain": "caddy.community",
+      "status": "not_found",
+      "found": false,
+      "url": "https://caddy.community/u/torvalds/summary",
+      "detail": "HTTP 404",
+      "elapsed": 0.18,
+      "source": "sherlock"
+    },
+    {
+      "site": "Car Talk Community",
+      "domain": "community.cartalk.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://community.cartalk.com/u/torvalds/summary",
+      "detail": "HTTP 404",
+      "elapsed": 0.102,
+      "source": "sherlock"
+    },
+    {
+      "site": "Carbonmade",
+      "domain": "carbonmade.com",
+      "status": "found",
+      "found": true,
+      "url": "https://torvalds.carbonmade.com",
+      "detail": "the profile URL answered without redirecting",
+      "elapsed": 0.133,
+      "source": "sherlock"
+    },
+    {
+      "site": "Carrd",
+      "domain": "carrd.co",
+      "status": "not_found",
+      "found": false,
+      "url": "https://torvalds.carrd.co/",
+      "detail": "HTTP 404",
+      "elapsed": 0.31,
+      "source": "sherlock"
+    },
+    {
+      "site": "Career.habr",
+      "domain": "career.habr.com",
+      "status": "error",
+      "found": false,
+      "url": "https://career.habr.com/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.655,
+      "source": "sherlock"
+    },
+    {
+      "site": "CashApp",
+      "domain": "cash.app",
+      "status": "blocked",
+      "found": false,
+      "url": "https://cash.app/$torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.032,
+      "source": "sherlock"
+    },
+    {
+      "site": "Championat",
+      "domain": "www.championat.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://www.championat.com/user/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 1.548,
+      "source": "sherlock"
+    },
+    {
+      "site": "Chaos",
+      "domain": "chaos.social",
+      "status": "error",
+      "found": false,
+      "url": "https://chaos.social/@torvalds",
+      "detail": "HTTP 418",
+      "elapsed": 1.06,
+      "source": "sherlock"
+    },
+    {
+      "site": "Chatujme.cz",
+      "domain": "chatujme.cz",
+      "status": "error",
+      "found": false,
+      "url": "https://profil.chatujme.cz/torvalds",
+      "detail": "an unused username returns the same page (similarity 1.00) \u2014 the absence of an error string proves nothing",
+      "elapsed": 0.685,
+      "source": "sherlock"
+    },
+    {
+      "site": "ChaturBate",
+      "domain": "chaturbate.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://chaturbate.com/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.039,
+      "source": "sherlock"
+    },
+    {
+      "site": "Chess",
+      "domain": "www.chess.com",
+      "status": "found",
+      "found": true,
+      "url": "https://www.chess.com/member/torvalds",
+      "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+      "elapsed": 0.379,
+      "source": "sherlock"
+    },
+    {
+      "site": "Choice Community",
+      "domain": "choice.community",
+      "status": "not_found",
+      "found": false,
+      "url": "https://choice.community/u/torvalds/summary",
+      "detail": "HTTP 404",
+      "elapsed": 0.502,
+      "source": "sherlock"
+    },
+    {
+      "site": "Clapper",
+      "domain": "clapperapp.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://clapperapp.com/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.166,
+      "source": "sherlock"
+    },
+    {
+      "site": "CloudflareCommunity",
+      "domain": "community.cloudflare.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://community.cloudflare.com/u/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.053,
+      "source": "sherlock"
+    },
+    {
+      "site": "Clozemaster",
+      "domain": "www.clozemaster.com",
+      "status": "error",
+      "found": false,
+      "url": "https://www.clozemaster.com/players/torvalds",
+      "detail": "an unused username returns the same page (similarity 1.00) \u2014 the absence of an error string proves nothing",
+      "elapsed": 0.372,
+      "source": "sherlock"
+    },
+    {
+      "site": "Clubhouse",
+      "domain": "www.clubhouse.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://www.clubhouse.com/@torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.403,
+      "source": "sherlock"
+    },
+    {
+      "site": "Code Snippet Wiki",
+      "domain": "codesnippets.fandom.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://codesnippets.fandom.com/wiki/User:torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.048,
+      "source": "sherlock"
+    },
+    {
+      "site": "Codeberg",
+      "domain": "codeberg.org",
+      "status": "not_found",
+      "found": false,
+      "url": "https://codeberg.org/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.757,
+      "source": "sherlock"
+    },
+    {
+      "site": "Codecademy",
+      "domain": "www.codecademy.com",
+      "status": "error",
+      "found": false,
+      "url": "https://www.codecademy.com/profiles/torvalds",
+      "detail": "an unused username returns the same page (similarity 0.98) \u2014 the absence of an error string proves nothing",
+      "elapsed": 0.281,
+      "source": "sherlock"
+    },
+    {
+      "site": "Codechef",
+      "domain": "www.codechef.com",
+      "status": "found",
+      "found": true,
+      "url": "https://www.codechef.com/users/torvalds",
+      "detail": "the profile URL answered without redirecting",
+      "elapsed": 0.217,
+      "source": "sherlock"
+    },
+    {
+      "site": "Codeforces",
+      "domain": "codeforces.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://codeforces.com/profile/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.059,
+      "source": "sherlock"
+    },
+    {
+      "site": "Codepen",
+      "domain": "codepen.io",
+      "status": "blocked",
+      "found": false,
+      "url": "https://codepen.io/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.039,
+      "source": "sherlock"
+    },
+    {
+      "site": "Coders Rank",
+      "domain": "codersrank.io",
+      "status": "error",
+      "found": false,
+      "url": "https://profile.codersrank.io/user/torvalds/",
+      "detail": "an unused username returns the same page (similarity 0.92) \u2014 the absence of an error string proves nothing",
+      "elapsed": 0.634,
+      "source": "sherlock"
+    },
+    {
+      "site": "Coderwall",
+      "domain": "coderwall.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://coderwall.com/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.715,
+      "source": "sherlock"
+    },
+    {
+      "site": "CodeSandbox",
+      "domain": "codesandbox.io",
+      "status": "blocked",
+      "found": false,
+      "url": "https://codesandbox.io/u/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.04,
+      "source": "sherlock"
+    },
+    {
+      "site": "Codewars",
+      "domain": "www.codewars.com",
+      "status": "found",
+      "found": true,
+      "url": "https://www.codewars.com/users/torvalds",
+      "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+      "elapsed": 0.205,
+      "source": "sherlock"
+    },
+    {
+      "site": "Codolio",
+      "domain": "codolio.com",
+      "status": "error",
+      "found": false,
+      "url": "https://codolio.com/profile/torvalds",
+      "detail": "only 26 characters of server-rendered text \u2014 nothing to tell a profile from a blank page",
+      "elapsed": 0.174,
+      "source": "sherlock"
+    },
+    {
+      "site": "Coinvote",
+      "domain": "coinvote.cc",
+      "status": "not_found",
+      "found": false,
+      "url": "https://coinvote.cc/profile/torvalds",
+      "detail": "HTTP 410",
+      "elapsed": 0.343,
+      "source": "sherlock"
+    },
+    {
+      "site": "ColourLovers",
+      "domain": "www.colourlovers.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://www.colourlovers.com/lover/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.061,
+      "source": "sherlock"
+    },
+    {
+      "site": "Contently",
+      "domain": "contently.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://torvalds.contently.com/",
+      "detail": "redirected to https://contently.com/",
+      "elapsed": 0.679,
+      "source": "sherlock"
+    },
+    {
+      "site": "Coroflot",
+      "domain": "coroflot.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://www.coroflot.com/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.071,
+      "source": "sherlock"
+    },
+    {
+      "site": "Cplusplus",
+      "domain": "cplusplus.com",
+      "status": "error",
+      "found": false,
+      "url": "https://cplusplus.com/user/torvalds",
+      "detail": "an unused username returns the same page (similarity 1.00) \u2014 the absence of an error string proves nothing",
+      "elapsed": 1.97,
+      "source": "sherlock"
+    },
+    {
+      "site": "Cracked",
+      "domain": "www.cracked.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://www.cracked.com/members/torvalds/",
+      "detail": "redirected to https://www.cracked.com/",
+      "elapsed": 0.369,
+      "source": "sherlock"
+    },
+    {
+      "site": "Cracked Forum",
+      "domain": "cracked.ax",
+      "status": "error",
+      "found": false,
+      "url": "https://cracked.ax/torvalds",
+      "detail": "HTTP 513",
+      "elapsed": 0.383,
+      "source": "sherlock"
+    },
+    {
+      "site": "Credly",
+      "domain": "www.credly.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://www.credly.com/users/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.278,
+      "source": "sherlock"
+    },
+    {
+      "site": "Crevado",
+      "domain": "crevado.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://torvalds.crevado.com",
+      "detail": "HTTP 404",
+      "elapsed": 0.173,
+      "source": "sherlock"
+    },
+    {
+      "site": "Crowdin",
+      "domain": "crowdin.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://crowdin.com/profile/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.296,
+      "source": "sherlock"
+    },
+    {
+      "site": "CryptoHack",
+      "domain": "cryptohack.org",
+      "status": "not_found",
+      "found": false,
+      "url": "https://cryptohack.org/user/torvalds/",
+      "detail": "redirected to https://cryptohack.org/",
+      "elapsed": 0.654,
+      "source": "sherlock"
+    },
+    {
+      "site": "Cryptomator Forum",
+      "domain": "community.cryptomator.org",
+      "status": "not_found",
+      "found": false,
+      "url": "https://community.cryptomator.org/u/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.557,
+      "source": "sherlock"
+    },
+    {
+      "site": "Cults3D",
+      "domain": "cults3d.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://cults3d.com/en/users/torvalds/creations",
+      "detail": "HTTP 403",
+      "elapsed": 0.056,
+      "source": "sherlock"
+    },
+    {
+      "site": "CyberDefenders",
+      "domain": "cyberdefenders.org",
+      "status": "not_found",
+      "found": false,
+      "url": "https://cyberdefenders.org/p/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 1.258,
+      "source": "sherlock"
+    },
+    {
+      "site": "DEV Community",
+      "domain": "dev.to",
+      "status": "not_found",
+      "found": false,
+      "url": "https://dev.to/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.144,
+      "source": "sherlock"
+    },
+    {
+      "site": "DMOJ",
+      "domain": "dmoj.ca",
+      "status": "blocked",
+      "found": false,
+      "url": "https://dmoj.ca/user/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.082,
+      "source": "sherlock"
+    },
+    {
+      "site": "DailyMotion",
+      "domain": "www.dailymotion.com",
+      "status": "error",
+      "found": false,
+      "url": "https://www.dailymotion.com/torvalds",
+      "detail": "only 11 characters of server-rendered text \u2014 nothing to tell a profile from a blank page",
+      "elapsed": 0.207,
+      "source": "sherlock"
+    },
+    {
+      "site": "dcinside",
+      "domain": "www.dcinside.com",
+      "status": "not_found",
+      "found": false,
+      "url": "https://gallog.dcinside.com/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.626,
+      "source": "sherlock"
+    },
+    {
+      "site": "Dealabs",
+      "domain": "www.dealabs.com",
+      "status": "error",
+      "found": false,
+      "url": "https://www.dealabs.com/profile/torvalds",
+      "detail": "HTTP 410",
+      "elapsed": 0.301,
+      "source": "sherlock"
+    },
+    {
+      "site": "DeviantArt",
+      "domain": "www.deviantart.com",
+      "status": "found",
+      "found": true,
+      "url": "https://www.deviantart.com/torvalds",
+      "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+      "elapsed": 0.478,
+      "source": "sherlock"
+    },
+    {
+      "site": "DigitalSpy",
+      "domain": "forums.digitalspy.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://forums.digitalspy.com/profile/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.075,
+      "source": "sherlock"
+    },
+    {
+      "site": "Discogs",
+      "domain": "www.discogs.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://www.discogs.com/user/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.031,
+      "source": "sherlock"
+    },
+    {
+      "site": "Discord.bio",
+      "domain": "discord.bio",
+      "status": "error",
+      "found": false,
+      "url": "https://discords.com/api-v2/bio/details/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.606,
+      "source": "sherlock"
+    },
+    {
+      "site": "Discuss.Elastic.co",
+      "domain": "discuss.elastic.co",
+      "status": "not_found",
+      "found": false,
+      "url": "https://discuss.elastic.co/u/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.057,
+      "source": "sherlock"
+    },
+    {
+      "site": "Disqus",
+      "domain": "disqus.com",
+      "status": "found",
+      "found": true,
+      "url": "https://disqus.com/torvalds",
+      "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+      "elapsed": 0.19,
+      "source": "sherlock"
+    },
+    {
+      "site": "Docker Hub",
+      "domain": "hub.docker.com",
+      "status": "found",
+      "found": true,
+      "url": "https://hub.docker.com/u/torvalds/",
+      "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+      "elapsed": 0.242,
+      "source": "sherlock"
+    },
+    {
+      "site": "Dribbble",
+      "domain": "dribbble.com",
+      "status": "error",
+      "found": false,
+      "url": "https://dribbble.com/torvalds",
+      "detail": "HTTP 404",
+      "elapsed": 0.241,
+      "source": "sherlock"
+    },
+    {
+      "site": "Duolingo",
+      "domain": "duolingo.com",
+      "status": "error",
+      "found": false,
+      "url": "https://www.duolingo.com/profile/torvalds",
+      "detail": "only 8 characters of server-rendered text \u2014 nothing to tell a profile from a blank page",
+      "elapsed": 0.217,
+      "source": "sherlock"
+    },
+    {
+      "site": "Eintracht Frankfurt Forum",
+      "domain": "community.eintracht.de",
+      "status": "error",
+      "found": false,
+      "url": "https://community.eintracht.de/fans/torvalds",
+      "detail": "HTTP 500",
+      "elapsed": 1.594,
+      "source": "sherlock"
+    },
+    {
+      "site": "Empretienda AR",
+      "domain": "empretienda.com",
+      "status": "error",
+      "found": false,
+      "url": "https://torvalds.empretienda.com.ar",
+      "detail": "ConnectError: [Errno -2] Name or service not known",
+      "elapsed": 0.018,
+      "source": "sherlock"
+    },
+    {
+      "site": "Envato Forum",
+      "domain": "forums.envato.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://forums.envato.com/u/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.11,
+      "source": "sherlock"
+    },
+    {
+      "site": "Erome",
+      "domain": "www.erome.com",
+      "status": "found",
+      "found": true,
+      "url": "https://www.erome.com/torvalds",
+      "detail": "HTTP 200 for this username but HTTP 404 for an unused one",
+      "elapsed": 0.277,
+      "source": "sherlock"
+    },
+    {
+      "site": "Exposure",
+      "domain": "exposure.co",
+      "status": "blocked",
+      "found": false,
+      "url": "https://torvalds.exposure.co/",
+      "detail": "HTTP 403",
+      "elapsed": 0.078,
+      "source": "sherlock"
+    },
+    {
+      "site": "exophase",
+      "domain": "www.exophase.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://www.exophase.com/user/torvalds/",
+      "detail": "HTTP 403",
+      "elapsed": 0.08,
+      "source": "sherlock"
+    },
+    {
+      "site": "EyeEm",
+      "domain": "www.eyeem.com",
+      "status": "error",
+      "found": false,
+      "url": "https://www.eyeem.com/u/torvalds",
+      "detail": "only 6 characters of server-rendered text \u2014 nothing to tell a profile from a blank page",
+      "elapsed": 0.403,
+      "source": "sherlock"
+    },
+    {
+      "site": "F3.cool",
+      "domain": "f3.cool",
+      "status": "error",
+      "found": false,
+      "url": "https://f3.cool/torvalds/",
+      "detail": "ConnectError: ",
+      "elapsed": 0.063,
+      "source": "sherlock"
+    },
+    {
+      "site": "Fameswap",
+      "domain": "fameswap.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://fameswap.com/user/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.09,
+      "source": "sherlock"
+    },
+    {
+      "site": "Fandom",
+      "domain": "www.fandom.com",
+      "status": "blocked",
+      "found": false,
+      "url": "https://www.fandom.com/u/torvalds",
+      "detail": "HTTP 403",
+      "elapsed": 0.031,
+      "source": "sherlock"
+    }
+  ]
+}
