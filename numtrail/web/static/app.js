@@ -3,8 +3,11 @@
   "use strict";
 
   const cfg = window.NUMTRAIL_CONFIG || {};
-  const apiBase = (new URLSearchParams(location.search).get("api") || cfg.apiBase || "")
-    .replace(/\/+$/, "");
+  // "" (same origin) or an absolute base that ALWAYS ends in "/" so that
+  // apiBase + "api/check" cannot mangle into hostapi/check.
+  const rawApiBase = String(new URLSearchParams(location.search).get("api")
+    || cfg.apiBase || "").trim();
+  const apiBase = rawApiBase ? rawApiBase.replace(/\/+$/, "") + "/" : "";
 
   const $ = (id) => document.getElementById(id);
   const el = {
