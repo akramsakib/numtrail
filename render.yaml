@@ -1,0 +1,17 @@
+# Render blueprint: repo -> live site with the API attached, all 15 probes.
+# Dashboard -> New -> Blueprint -> pick this repo. Nothing else to configure.
+services:
+  - type: web
+    name: numtrail
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - key: NUMTRAIL_RATE_LIMIT
+        value: "8"
+      - key: NUMTRAIL_RATE_WINDOW
+        value: "60"
+      # add any of the lookup API keys here to light up the keyed probes:
+      # - key: NUMVERIFY_KEY
+      #   sync: false

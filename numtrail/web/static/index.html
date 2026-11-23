@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>numtrail — where is this number registered?</title>
+<meta name="description" content="Check which of 150+ services a phone number is registered on. Self-hosted OSINT tool.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230b0f14'/><circle cx='16' cy='16' r='4' fill='%2338e07f'/><circle cx='16' cy='16' r='10' fill='none' stroke='%2338e07f' stroke-width='1.2' opacity='.45'/></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="noise" aria-hidden="true"></div>
+
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true">
+      <circle cx="16" cy="16" r="3.6" fill="var(--accent)"/>
+      <circle cx="16" cy="16" r="10" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".5"/>
+      <circle cx="16" cy="16" r="14.4" fill="none" stroke="var(--accent)" stroke-width="1" opacity=".2"/>
+    </svg>
+    <div class="brand-text">
+      <h1>numtrail</h1>
+      <p><strong id="auto-count">15</strong> live probes · <strong id="site-count">160</strong> services catalogued</p>
+    </div>
+  </div>
+  <a class="ghost" href="https://github.com/" id="repo-link" target="_blank" rel="noreferrer">source</a>
+</header>
+
+<main>
+  <section class="console" aria-label="Run a check">
+    <form id="check-form" autocomplete="off">
+      <label class="field">
+        <span>phone number, dial code included</span>
+        <input id="phone" name="phone" type="tel" inputmode="tel" spellcheck="false"
+               placeholder="+60 12 345 6789" value="+15550100" required
+               list="dial-codes" aria-describedby="phone-hint">
+      </label>
+      <datalist id="dial-codes">
+        <option value="+60">Malaysia</option>
+        <option value="+65">Singapore</option>
+        <option value="+62">Indonesia</option>
+        <option value="+63">Philippines</option>
+        <option value="+66">Thailand</option>
+        <option value="+84">Vietnam</option>
+        <option value="+91">India</option>
+        <option value="+86">China</option>
+        <option value="+81">Japan</option>
+        <option value="+82">South Korea</option>
+        <option value="+44">United Kingdom</option>
+        <option value="+1">USA / Canada</option>
+        <option value="+33">France</option>
+        <option value="+49">Germany</option>
+        <option value="+61">Australia</option>
+        <option value="+971">UAE</option>
+        <option value="+966">Saudi Arabia</option>
+        <option value="+7">Russia</option>
+        <option value="+55">Brazil</option>
+        <option value="+27">South Africa</option>
+      </datalist>
+      <button type="submit" id="run">
+        <span class="label">trace</span>
+        <kbd>↵</kbd>
+      </button>
+    </form>
+
+    <div class="controls">
+      <div class="chips" id="status-filters" role="group" aria-label="Filter by status">
+        <button class="chip active" data-status="automated">automated <b id="c-automated">0</b></button>
+        <button class="chip" data-status="all">everything <b id="c-all">0</b></button>
+        <button class="chip" data-status="found">found <b id="c-found">0</b></button>
+        <button class="chip" data-status="not_found">not found <b id="c-not_found">0</b></button>
+        <button class="chip" data-status="blocked">blocked <b id="c-blocked">0</b></button>
+        <button class="chip" data-status="rate_limited">limited <b id="c-rate_limited">0</b></button>
+        <button class="chip" data-status="manual">manual <b id="c-manual">0</b></button>
+      </div>
+      <div class="chips" id="category-filters" role="group" aria-label="Filter by category"></div>
+      <div class="tools">
+        <input id="search" type="search" placeholder="filter sites…" aria-label="Filter sites by name">
+        <button class="ghost" id="export" title="Download results as JSON">export</button>
+      </div>
+    </div>
+
+    <div class="meter" id="meter" hidden><div class="bar"></div></div>
+    <p class="notice" id="notice" role="status" aria-live="polite"></p>
+  </section>
+
+
+  <section class="setup" id="setup" hidden aria-labelledby="setup-title">
+    <h2 id="setup-title">This build has no backend attached</h2>
+    <p>
+      GitHub Pages serves files only — it cannot make the outbound requests these checks
+      need. Attach one of these and the same page runs real probes. No simulations here.
+    </p>
+    <ol>
+      <li>
+        <strong>Cloudflare Worker</strong> <span class="tag">free · ~5 min · 14 of 15 probes</span><br>
+        <code>wrangler deploy numtrail/web/worker.js --name numtrail-api</code>, then add the repo
+        variable <code>NUMTRAIL_API_BASE</code> = that worker URL and re-run the Pages workflow.
+      </li>
+      <li>
+        <strong>Render / Fly / any Docker host</strong> <span class="tag">free tier · all 15 probes</span><br>
+        Deploy this repo as-is. <code>numtrail-web</code> serves the UI and the API from one origin,
+        so there is no CORS to configure and nothing to point at.
+      </li>
+      <li>
+        <strong>This machine</strong> <span class="tag">all 15 probes</span><br>
+        <code>pip install -e . &amp;&amp; numtrail-web --port 8000</code>
+      </li>
+    </ol>
+    <p class="setup-foot">
+      Step-by-step, including the two worker variables and the rate-limit settings:
+      <code>DEPLOY.md</code> in the repo root.
+    </p>
+  </section>
+
+  <section class="grid" id="grid" aria-live="polite"></section>
+
+  <footer class="foot">
+    <p>
+      <strong>Read the statuses, not just the greens.</strong>
+      <span class="k">found</span> and <span class="k">not found</span> are answers.
+      <span class="k">blocked</span> and <span class="k">limited</span> mean the service
+      refused to answer — that is not a "no".
+      <span class="k">manual</span> sites have no honest automated probe; the card links to
+      the service's own sign-in flow for you to check.
+    </p>
+    <p class="legal">
+      Self-hosted tool. Run it against numbers you are authorised to check — your own, or
+      inside a contract. Personal-data law (PDPA, GDPR) and each service's terms apply to
+      you, not to this page.
+    </p>
+  </footer>
+</main>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
