@@ -1,0 +1,13 @@
+# Numbers the GitHub Actions backend probes on a schedule.
+#
+# One number per line, dial code included. Lines starting with # are ignored.
+# Committed results land in numtrail/web/static/snapshots.json, which the Pages
+# site reads — that is how the static site shows real probe results with no
+# server anywhere.
+#
+# Only put numbers here that you are authorised to check. This file is public.
+
++60123456789        # example Malaysian mobile (Maxis 012 block)
++601112345678       # example 011 block, 10-digit
++60321123456        # example Kuala Lumpur fixed line
++15550100           # example US fictional-range number

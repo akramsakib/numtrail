@@ -80,6 +80,27 @@ of `/api/check` — the worker's own limiter is per-isolate and best effort — 
 keep `ALLOW_ORIGIN` locked to your Pages origin so nobody uses your worker as a
 free enumeration proxy.
 
+## Route 0 — GitHub Actions snapshot (nothing but GitHub, free, 5 min)
+
+The repo ships this already; you only edit one file.
+
+1. Put the numbers you care about in `watchlist.txt` — one per line, dial code
+   included. Only numbers you're authorised to check; this file is public.
+2. Optional: **Settings → Secrets and variables → Actions → Secrets** add
+   `NUMVERIFY_KEY` or `VERIPHONE_KEY` (free tiers) so the run records real
+   carrier data. Add `PROXY_URL` (residential proxy) if you want the three
+   bot-walled web probes to answer.
+3. **Actions → snapshot → Run workflow.** It probes, commits
+   `numtrail/web/static/snapshots.json`, and re-triggers the Pages deploy.
+
+The Pages site then shows timestamped results for those numbers with no server
+involved. Watch it on a schedule (`cron: 23 */6 * * *`), and the site is
+refreshed four times a day.
+
+Limit: watchlisted numbers only. A web form can't trigger a workflow without
+putting a `workflow`-scoped token in the browser, which would be handing out
+write access to your repo.
+
 ## Route 3 — Pages only, no backend
 
 Allowed, but be clear on what you get: the page loads, shows all 16 probe cards,

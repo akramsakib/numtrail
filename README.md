@@ -160,6 +160,40 @@ variables, and the rate-limit/key warnings — is in
 If the UI is deployed without a backend it says so and shows deploy steps rather
 than inventing results. Deployment walkthrough: [DEPLOY.md](DEPLOY.md).
 
+## Backend on GitHub (no server anywhere)
+
+GitHub Pages can't execute code, so the repo provides the compute instead:
+**GitHub Actions probes a watchlist on a schedule and commits the results**, and
+the static site reads them.
+
+```
+watchlist.txt ──► .github/workflows/snapshot.yml ──► snapshots.json ──► Pages
+  (you edit)         (cron: every 6h)               (committed)        (reads it)
+```
+
+```bash
+# locally, same thing the workflow does
+python -m numtrail.snapshot --watchlist watchlist.txt \
+    --out numtrail/web/static/snapshots.json
+```
+
+Add a lookup key as a repository secret (`NUMVERIFY_KEY`, `VERIPHONE_KEY`, …) and
+the scheduled run records real carrier results. Add `PROXY_URL` (a residential
+proxy) and the three bot-walled web probes start answering instead of returning
+`blocked` from a runner IP.
+
+**The limit, stated plainly:** this serves the numbers in `watchlist.txt`, not
+arbitrary visitor input. Letting a web page trigger a workflow needs a token with
+`workflow` scope in client-side JS — which would hand anyone write access to your
+repo. A watchlist is the only shape that is both serverless *and* safe, and it
+keeps the site a viewer rather than an open enumeration service.
+
+| approach | serves | needs |
+| --- | --- | --- |
+| Actions snapshot (this) | your watchlisted numbers | nothing, free |
+| Cloudflare Worker | any number | a Cloudflare account |
+| Render / Docker | any number | a Render account or a box |
+
 ## The catalogue
 
 `numtrail/catalog.py` is the single source of truth for the 161 sites, grouped
@@ -236,6 +270,7 @@ numtrail/
   output.py     table / json / csv / domains
   cli.py        argparse front end
   catalog.py    161 sites: category, domain, lookup path, probe
+  snapshot.py   probe watchlist.txt -> snapshots.json (the Actions backend)
   modules/
     legacy/     instagram, snapchat, amazon
     api/        twilio, numverify, abstractapi, veriphone, vonage,
@@ -251,7 +286,7 @@ Dockerfile     UI + API in one container
 render.yaml    one-click Render blueprint
 fly.toml       fly launch --copy-config
 .github/workflows/pages.yml   Pages deploy, wires NUMTRAIL_API_BASE into config.js
-tests/          296 python tests + 18 worker tests, all offline
+tests/          304 python tests + 18 worker tests, all offline
 Makefile        install / test / serve / build / docker / check
 .github/        ci.yml (tests, packaging) + pages.yml (deploy)
 ```
@@ -259,7 +294,7 @@ Makefile        install / test / serve / build / docker / check
 ## Tests
 
 ```bash
-python3 -m pytest            # 296 python tests, offline
+python3 -m pytest            # 304 python tests, offline
 node tests/worker.test.mjs   # 18 tests for the Cloudflare Worker build
 make check                   # both, plus a catalogue-sync check
 ```

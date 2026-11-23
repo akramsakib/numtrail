@@ -1,0 +1,116 @@
+name: snapshot
+
+# The "backend on GitHub": Actions does the probing, the repo stores the
+# results, GitHub Pages serves them. No server, no third-party account.
+#
+# Every run rewrites numtrail/web/static/snapshots.json and commits it if it
+# changed, which triggers the Pages deploy. Result: a static site that shows
+# real, timestamped probe output for the numbers in watchlist.txt.
+
+on:
+  schedule:
+    - cron: "23 */6 * * *"     # four times a day (UTC)
+  workflow_dispatch:
+  push:
+    paths:                       # re-probe when the watchlist or the probes change
+      - "watchlist.txt"
+      - "numtrail/modules/**"
+      - "numtrail/catalog.py"
+      - ".github/workflows/snapshot.yml"
+
+permissions:
+  contents: write                # needs to commit the snapshot back
+  actions: write                 # ...and to re-run the Pages deploy afterwards
+
+concurrency:
+  group: snapshot
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: python -m pip install --quiet -e .
+
+      - name: Probe the watchlist
+        env:
+          # Add any of these as repository secrets to light up the keyed probes.
+          # Settings → Secrets and variables → Actions → Secrets.
+          NUMVERIFY_KEY: ${{ secrets.NUMVERIFY_KEY }}
+          VERIPHONE_KEY: ${{ secrets.VERIPHONE_KEY }}
+          ABSTRACTAPI_PHONE_KEY: ${{ secrets.ABSTRACTAPI_PHONE_KEY }}
+          IPQS_KEY: ${{ secrets.IPQS_KEY }}
+          NUMLOOKUPAPI_KEY: ${{ secrets.NUMLOOKUPAPI_KEY }}
+          TRESTLE_API_KEY: ${{ secrets.TRESTLE_API_KEY }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          VONAGE_API_KEY: ${{ secrets.VONAGE_API_KEY }}
+          VONAGE_API_SECRET: ${{ secrets.VONAGE_API_SECRET }}
+          TELESIGN_CUSTOMER_ID: ${{ secrets.TELESIGN_CUSTOMER_ID }}
+          TELESIGN_API_KEY: ${{ secrets.TELESIGN_API_KEY }}
+          PLIVO_AUTH_ID: ${{ secrets.PLIVO_AUTH_ID }}
+          PLIVO_AUTH_TOKEN: ${{ secrets.PLIVO_AUTH_TOKEN }}
+          BIRD_ACCESS_KEY: ${{ secrets.BIRD_ACCESS_KEY }}
+          MOCEAN_API_KEY: ${{ secrets.MOCEAN_API_KEY }}
+          MOCEAN_API_SECRET: ${{ secrets.MOCEAN_API_SECRET }}
+          # Optional: a residential proxy makes the three web probes answer
+          # instead of bot-walling a datacentre IP.
+          PROXY_URL: ${{ secrets.PROXY_URL }}
+        run: |
+          python -m numtrail.catalog --write
+          python -m numtrail.snapshot --watchlist watchlist.txt \
+            --out numtrail/web/static/snapshots.json
+
+      - name: Commit if anything changed
+        run: |
+          git config user.name  "numtrail snapshot bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add numtrail/web/static/snapshots.json numtrail/web/static/catalog.json
+          if git diff --cached --quiet; then
+            echo "no change to commit"
+            exit 0
+          fi
+          git commit -m "snapshot: $(date -u +'%Y-%m-%dT%H:%M:%SZ') watchlist probe results"
+          git push
+
+      # Commits pushed with GITHUB_TOKEN do not trigger other workflows (that is
+      # GitHub's anti-recursion rule), so the Pages build has to be dispatched
+      # explicitly or the site would keep serving the previous snapshot.
+      - name: Redeploy Pages with the new snapshot
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run pages.yml --ref main || echo "dispatch failed; next push will redeploy"
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "### snapshot"
+            python - <<'PY'
+          import json, pathlib
+          p = pathlib.Path("numtrail/web/static/snapshots.json")
+          if not p.is_file():
+              print("_no snapshot written_")
+          else:
+              d = json.loads(p.read_text())
+              print(f"generated {d['generated_at']} · {d['watchlist_size']} numbers · "
+                    f"credentials: {', '.join(d['credentials_present']) or 'none'}")
+              print()
+              print("| number | conclusive | statuses |")
+              print("| --- | --- | --- |")
+              for n, e in d["entries"].items():
+                  tally = {}
+                  for r in e["results"]:
+                      tally[r["status"]] = tally.get(r["status"], 0) + 1
+                  print(f"| `{n}` | {e['conclusive']} | "
+                        f"{', '.join(f'{k}={v}' for k, v in sorted(tally.items()))} |")
+          PY
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -22,7 +22,7 @@
   const state = {
     catalog: [], results: new Map(), filter: "automated", category: "all",
     search: "", running: false, lastPhone: "", elapsed: 0, automatedCount: 0,
-    backend: true,
+    backend: true, snapshots: null,
     automated: 0, settled: 0,
   };
 
@@ -99,6 +99,33 @@
     if (nsn.startsWith("11") && nsn.length === 10) return `${local.slice(0, 3)}-${local.slice(3, 7)} ${local.slice(7)}`;
     if (local.length === 10) return `${local.slice(0, 3)}-${local.slice(3, 6)} ${local.slice(6)}`;
     return `${local.slice(0, 2)}-${local.slice(2, 5)} ${local.slice(5)}`;
+  }
+
+  function relTime(iso) {
+    const then = Date.parse(iso);
+    if (!then) return "committed";
+    const mins = Math.max(0, Math.round((Date.now() - then) / 60000));
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    if (mins < 1440) return `${Math.round(mins / 60)}h ago`;
+    return `${Math.round(mins / 1440)}d ago`;
+  }
+
+  function applySnapshot(phone) {
+    const e164 = "+" + String(phone).replace(/\D/g, "");
+    const entry = state.snapshots && state.snapshots.entries && state.snapshots.entries[e164];
+    if (!entry) return 0;
+    let applied = 0;
+    for (const r of entry.results) {
+      if (r.status === "skipped") continue;
+      const card = el.grid.querySelector(`[data-site="${r.module}"]`);
+      if (!card) continue;
+      const stamp = `snapshot ${relTime(entry.probed_at)}`;
+      updateCard({ ...r, detail: r.detail ? `${r.detail} · ${stamp}` : stamp });
+      state.settled++;
+      applied++;
+    }
+    return applied;
   }
 
   function runLocalProbes(phone) {
@@ -308,6 +335,9 @@
       updateCard(result);
       state.settled++;
     }
+    // then: results the GitHub Actions backend already committed
+    const fromSnapshot = applySnapshot(phone);
+
     if (!state.backend) {
       for (const card of el.grid.children) {
         if (card.dataset.automated !== "1") continue;
@@ -322,15 +352,24 @@
       }
       state.running = false;
       el.run.disabled = false;
-      const hits = [...state.results.values()].filter((r) => r.local);
-      const found = hits.filter((r) => r.status === "found").length;
-      setNotice(
-        hits.length
-          ? `${found ? "answered" : "no answer"} from the offline probe · ${hits.length} of ` +
-            `${state.automated} probes can run without a backend (see the panel below)`
-          : "no offline probe applies to this number — see the panel below",
-        hits.length ? "" : "err"
-      );
+      const live = [...state.results.values()];
+      const offline = live.filter((r) => r.local).length;
+      const network = live.length - offline;
+      if (network > 0) {
+        setNotice(
+          `${network} result${network === 1 ? "" : "s"} from the GitHub snapshot` +
+          (state.snapshots ? ` (${relTime(state.snapshots.generated_at)})` : "") +
+          ` · ${offline} offline · add this number to watchlist.txt for more`,
+          ""
+        );
+      } else if (offline > 0) {
+        setNotice(
+          `answered from the offline probe · this number is not in watchlist.txt, ` +
+          `so the networked probes have no committed results to show`, ""
+        );
+      } else {
+        setNotice("nothing could run: no backend, and the number is not in watchlist.txt", "err");
+      }
       applyFilters();
       return;
     }
@@ -466,6 +505,7 @@
     const payload = {
       phone: state.lastPhone,
       elapsed: state.elapsed,
+      snapshot_generated_at: state.snapshots ? state.snapshots.generated_at : null,
       results: [...state.results.values()],
       manual: state.catalog.filter((s) => !s.probe).map((s) => ({
         site: s.name, domain: s.domain, category: s.category,
@@ -507,6 +547,14 @@
       `${state.automatedCount} automated probes ready — the other ${manual} services are ` +
       `link-out only; press "everything" to see them`
     );
+    // Committed results from the GitHub Actions backend (watchlist.txt), if any.
+    try {
+      const snap = await fetch("snapshots.json", { cache: "no-store" });
+      if (snap.ok) state.snapshots = await snap.json();
+    } catch (err) {
+      state.snapshots = null;
+    }
+
     try {
       const health = await fetch(apiBase + "healthz", { cache: "no-store" });
       if (!health.ok) throw new Error(`healthz ${health.status}`);
