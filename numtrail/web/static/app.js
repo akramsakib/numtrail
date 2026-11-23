@@ -843,6 +843,12 @@
       );
       // A link like .../#+60123456789 still has to do something: the offline
       // probe runs here and the committed snapshot may already answer it.
+      // #@username goes to the other half of the page.
+      if (hashUser) {
+        setMode("username");
+        runUserCheck(hashUser);
+        return;
+      }
       if (fromHash) runCheck(fromHash);
       return;
     }
