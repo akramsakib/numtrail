@@ -354,9 +354,20 @@
       `${results.length} sites checked · ${found} found · ${tally.not_found || 0} not found · ` +
       `${silent} gave no answer · ${sourceLine}`;
 
-    for (const status of ["any", "found", "not_found", "blocked", "rate_limited", "error"]) {
+    // "no answer" is everything that was not an answer: blocked, limited, error,
+    // skipped. The chips must add up to the line above them.
+    const noAnswer = results.length - found - (tally.not_found || 0);
+    const counts = {
+      any: results.length,
+      found,
+      not_found: tally.not_found || 0,
+      blocked: tally.blocked || 0,
+      rate_limited: tally.rate_limited || 0,
+      error: noAnswer - (tally.blocked || 0) - (tally.rate_limited || 0),
+    };
+    for (const [status, value] of Object.entries(counts)) {
       const node = document.getElementById("u-" + status);
-      if (node) node.textContent = status === "any" ? results.length : (tally[status] || 0);
+      if (node) node.textContent = value;
     }
     paintUsers();
   }
