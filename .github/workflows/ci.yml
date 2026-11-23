@@ -9,11 +9,19 @@ on:
 jobs:
   test:
     name: tests · python ${{ matrix.python }}
-    runs-on: ubuntu-latest
+    # 3.9 is not in the toolcache on the newest runner image (ubuntu-26.04),
+    # so that leg pins an older image rather than dropping coverage.
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.9", "3.12", "3.13"]
+        include:
+          - python: "3.9"
+            os: ubuntu-22.04
+          - python: "3.12"
+            os: ubuntu-latest
+          - python: "3.13"
+            os: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
