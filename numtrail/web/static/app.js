@@ -607,6 +607,9 @@
         `this build has no API at ${apiBase || "this origin"} — GitHub Pages cannot run checks. ` +
         `Attach a backend (one repo variable) or self-host; steps are panel-side.`
       );
+      // A link like .../#+60123456789 still has to do something: the offline
+      // probe runs here and the committed snapshot may already answer it.
+      if (fromHash) runCheck(fromHash);
       return;
     }
 
