@@ -10,7 +10,7 @@ whole constraint.
 
 ---
 
-## Route 1 — Render, blueprint deploy (10 min, all 15 probes, free tier)
+## Route 1 — Render, blueprint deploy (10 min, all 16 probes, free tier)
 
 One deploy gives you the UI *and* the API on the same origin. No CORS, nothing to
 point at, nothing to configure by hand.
@@ -43,7 +43,7 @@ docker run -p 8000:8000 --rm numtrail
 # http://localhost:8000
 ```
 
-## Route 2 — GitHub Pages + Cloudflare Worker (15 min, 14 of 15 probes, free)
+## Route 2 — GitHub Pages + Cloudflare Worker (15 min, 15 of 16 probes, free)
 
 Keeps the front end on Pages. The worker does the talking. This is the only
 combination that keeps *both* halves free at zero maintenance.
@@ -71,7 +71,7 @@ Then:
      serve `/api/catalog` from your Pages site)
    - optionally any lookup API keys
 
-Worker coverage: 14 of 15 probes. Amazon's `/ax/claim` flow needs HTML form
+Worker coverage: 15 of 16 probes. Amazon's `/ax/claim` flow needs HTML form
 parsing, so the edge build reports it as `skipped` and says why. Route 1 has all
 15.
 
@@ -82,7 +82,7 @@ free enumeration proxy.
 
 ## Route 3 — Pages only, no backend
 
-Allowed, but be clear on what you get: the page loads, shows all 15 probe cards,
+Allowed, but be clear on what you get: the page loads, shows all 16 probe cards,
 and refuses to invent results. It displays the setup panel instead. That's the
 honest behaviour, and it's why there is no "demo mode" any more.
 

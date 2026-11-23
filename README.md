@@ -97,9 +97,16 @@ The table never mixes the two up, and JSON output keeps them separate.
 | `numlookupapi` | api | number_valid | `NUMLOOKUPAPI_KEY` | free tier available |
 | `trestle` | api | number_valid | `TRESTLE_API_KEY` | validity + prepaid flag |
 | `mocean` | api | number_valid | `MOCEAN_API_KEY`, `MOCEAN_API_SECRET` | carrier + reachability |
+| `my_number` | offline | number_valid | — | Malaysian numbering plan: line type, 01X block, formats. No network, no key, works in the browser |
 
 Cookie-backed modules accept a browser `Cookie:` header through the env var, so
 you can drive them with a real session instead of fighting the bot-wall.
+
+**`offline` modules** are pure functions over the number itself — no network, no
+key, no backend. `my_number` decodes the Malaysian plan (mobile vs fixed line,
+which 01X block, subscriber digit count, E.164 / local / wa.me formats). It is the
+one probe that answers on a static GitHub Pages build, and the same logic ships in
+Python, in the worker, and in `app.js` for the browser.
 
 **Tier honesty:** `legacy` modules hit undocumented endpoints that each company
 changes at will. They were re-verified against the live flows while this was
@@ -117,7 +124,7 @@ numtrail +60123456789 -m numverify,twilio
 
 ## Web version
 
-A browser UI ships in this repo: it opens showing **only the 15 automated
+A browser UI ships in this repo: it opens showing **only the 16 automated
 probes**, all live, in a filterable grid. Press "everything" if you also want the
 145 link-out services. JSON export, shareable run links, mobile layout.
 
@@ -139,8 +146,8 @@ so the checks need a server. Two supported shapes:
 
 | shape | probes | cost | how |
 | --- | --- | --- | --- |
-| Render blueprint (`render.yaml` → `Dockerfile`) | all 15 | free tier | one click, UI + API on one origin |
-| GitHub Pages UI + Cloudflare Worker (`worker.js`) | 14 (no `amazon`) | free | one repo variable wires them together |
+| Render blueprint (`render.yaml` → `Dockerfile`) | all 16 | free tier | one click, UI + API on one origin |
+| GitHub Pages UI + Cloudflare Worker (`worker.js`) | 15 (no `amazon`) | free | one repo variable wires them together |
 | Docker / VPS | all 15 | your box | `docker run -p 8000:8000 numtrail` |
 
 Deploying takes one of three routes; **[DEPLOY.md](DEPLOY.md)** has the exact
@@ -155,7 +162,7 @@ than inventing results. Deployment walkthrough: [DEPLOY.md](DEPLOY.md).
 
 ## The catalogue
 
-`numtrail/catalog.py` is the single source of truth for the 160 sites, grouped
+`numtrail/catalog.py` is the single source of truth for the 161 sites, grouped
 into 11 categories, and `catalog.json` is generated from it:
 
 ```bash
@@ -165,8 +172,8 @@ python -m numtrail.catalog --write    # regenerate the JSON the web UI serves
 
 Each entry is either **automated** (a module in `numtrail/modules/` asks the
 service) or **manual** (the card links to that service's own sign-in flow and you
-check it yourself). 15 are automated today — 3 web flows and 12 keyed APIs — and
-the other 145 are link-outs because they are captcha'd, undocumented, or behind a
+check it yourself). 16 are automated today — 3 web flows, 12 keyed APIs and 1
+offline numbering decode — and the other 145 are link-outs because they are captcha'd, undocumented, or behind a
 login, and inventing endpoints for them would be fabrication. `tests/test_catalog.py` fails if a catalogue entry
 claims a probe that doesn't exist — the catalogue is not allowed to lie.
 
@@ -228,12 +235,13 @@ numtrail/
   engine.py     httpx client, semaphore, per-module timeout, retries
   output.py     table / json / csv / domains
   cli.py        argparse front end
-  catalog.py    160 sites: category, domain, lookup path, probe
+  catalog.py    161 sites: category, domain, lookup path, probe
   modules/
     legacy/     instagram, snapchat, amazon
     api/        twilio, numverify, abstractapi, veriphone, vonage,
                 ipqualityscore, telesign, plivo, bird, numlookupapi,
                 trestle, mocean
+    offline/    my_number (Malaysian numbering plan, no network)
   web/
     static/     the whole front end (no build step)
     server.py   local server: static + streaming /api/check
@@ -243,7 +251,7 @@ Dockerfile     UI + API in one container
 render.yaml    one-click Render blueprint
 fly.toml       fly launch --copy-config
 .github/workflows/pages.yml   Pages deploy, wires NUMTRAIL_API_BASE into config.js
-tests/          281 python tests + 15 worker tests, all offline
+tests/          296 python tests + 18 worker tests, all offline
 Makefile        install / test / serve / build / docker / check
 .github/        ci.yml (tests, packaging) + pages.yml (deploy)
 ```
@@ -251,8 +259,8 @@ Makefile        install / test / serve / build / docker / check
 ## Tests
 
 ```bash
-python3 -m pytest            # 281 python tests, offline
-node tests/worker.test.mjs   # 15 tests for the Cloudflare Worker build
+python3 -m pytest            # 296 python tests, offline
+node tests/worker.test.mjs   # 18 tests for the Cloudflare Worker build
 make check                   # both, plus a catalogue-sync check
 ```
 
@@ -289,7 +297,7 @@ wheel that it installs and smoke-tests before uploading it as an artifact.
 | network | fixed UA string, no proxy | UA pool, `--proxy`, per-module timeouts |
 | config | none | env vars per module, `needs_credentials` instead of a silent skip |
 | self-update | ran `pip install --upgrade` on every start | removed; that is what package managers are for |
-| tests | none | 281, all offline |
+| tests | none | 314, all offline |
 | semantics | one question per module | `account_exists` vs `number_valid`, never conflated |
 
 ## Next steps to make it fully yours

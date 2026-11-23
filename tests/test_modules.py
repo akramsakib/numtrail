@@ -471,3 +471,47 @@ def test_all_keyed_modules_need_a_key_without_env():
                  "numlookupapi", "trestle", "mocean"):
         r = call(name, lambda req: httpx.Response(200, json={}), env={})
         assert r.status is Status.NEEDS_CREDENTIALS, name
+
+
+# --------------------------------------------------- offline Malaysian numbering
+from numtrail.modules.offline.my_number import decode as my_decode, formats as my_formats
+
+
+@pytest.mark.parametrize("national,needle", [
+    ("123456789", "012 block"),
+    ("1112345678", "011 universal"),
+    ("102361234", "010 block"),
+    ("188881234", "018 block"),
+    ("162345678", "016 block"),
+    ("321123456", "fixed line"),
+    ("82212345", "Sarawak"),
+])
+def test_my_number_decodes_blocks(national, needle):
+    status, detail = my_decode(national)
+    assert status is Status.FOUND, detail
+    assert needle in detail
+
+
+@pytest.mark.parametrize("national", ["12345", "11123456", "9912345678", "12345678901"])
+def test_my_number_rejects_impossible_lengths(national):
+    status, detail = my_decode(national)
+    assert status is Status.NOT_FOUND, detail
+
+
+def test_my_number_formats():
+    f = my_formats("123456789")
+    assert f["e164"] == "+60123456789"
+    assert f["local"] == "012-345 6789"
+    assert f["wa_me"].endswith("60123456789")
+
+
+def test_my_number_module_is_offline_only():
+    r = call("my_number", lambda req: (_ for _ in ()).throw(AssertionError("network!")),
+             phone=MY)
+    assert r.status is Status.FOUND
+    assert "012 block" in (r.detail or "")
+
+
+def test_my_number_module_skips_other_countries():
+    r = call("my_number", lambda req: pytest.fail("no network allowed"), phone=PHONE)
+    assert r.status is Status.SKIPPED

@@ -39,6 +39,7 @@ class Site(NamedTuple):
     probe: str = ""      # registered module name, if automated
     verified: bool = False
     note: str = ""
+    offline: bool = False  # runs in the browser, no backend needed
 
 
 def _s(*rows) -> list[Site]:
@@ -228,6 +229,8 @@ SITES: list[Site] = _s(
      "abstractapi", True, "validity + carrier, needs a key"),
     ("veriphone", "Veriphone", "veriphone.io", "intel", "global", "", "veriphone", True,
      "free tier available, needs a key"),
+    ("my_number", "Malaysian numbering plan", "mcmc.gov.my", "intel", "my", "",
+     "my_number", True, "offline: line type, 01X block, formats — no network, no key", True),
     ("ipqualityscore", "IPQualityScore", "ipqualityscore.com", "intel", "global", "",
      "ipqualityscore", False, "validity + fraud score, needs a key"),
     ("vonage", "Vonage Number Insight", "vonage.com", "intel", "global", "",
@@ -264,6 +267,7 @@ def coverage() -> dict:
     return {
         "total": len(SITES),
         "automated": len(automated),
+        "offline": len([s for s in SITES if s.offline]),
         "manual": len(SITES) - len(automated),
         "by_category": by_category,
     }
@@ -289,8 +293,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     args = parser.parse_args(list(argv) if argv is not None else None)
 
     stats = coverage()
-    print(f"{stats['total']} sites · {stats['automated']} automated · "
-          f"{stats['manual']} manual (link-out)")
+    print(f"{stats['total']} sites · {stats['automated']} automated "
+          f"({stats['offline']} offline) · {stats['manual']} manual (link-out)")
     print()
     for category, bucket in stats["by_category"].items():
         print(f"  {category:<10} {bucket['total']:>3} total   {bucket['automated']:>2} automated")

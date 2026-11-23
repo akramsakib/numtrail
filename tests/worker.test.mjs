@@ -88,14 +88,14 @@ async function test(name, fn) {
   }
 }
 
-await test("streams meta, 15 results, then done", async () => {
+await test("streams meta, 16 results, then done", async () => {
   const { response, events } = await check({ ip: "9.9.9.1" });
   assert.equal(response.headers.get("content-type"), "application/x-ndjson");
   assert.equal(events[0].type, "meta");
   assert.equal(events[0].iso, "MY");
-  assert.equal(events[0].automated, 15);
+  assert.equal(events[0].automated, 16);
   assert.equal(events.at(-1).type, "done");
-  assert.equal(events.filter((e) => e.type === "result").length, 15);
+  assert.equal(events.filter((e) => e.type === "result").length, 16);
   assert.ok(events.at(-1).elapsed >= 0);
 });
 
@@ -137,6 +137,26 @@ await test("numlookupapi and trestle map correctly", async () => {
   assert.equal(m.trestle.status, "not_found");
 });
 
+await test("offline MY probe answers without any network call", async () => {
+  calls.length = 0;
+  const m = byModule((await check({ ip: "9.9.9.20" })).events);
+  assert.equal(m.my_number.status, "found");
+  assert.match(m.my_number.detail, /012 block/);
+  assert.match(m.my_number.detail, /Maxis/);
+  assert.ok(!calls.some((u) => u.includes("mcmc")), "offline probe must not fetch");
+});
+
+await test("offline MY probe rejects a bad length", async () => {
+  const m = byModule((await check({ phone: "+6012345", ip: "9.9.9.21" })).events);
+  assert.equal(m.my_number.status, "not_found");
+  assert.match(m.my_number.detail, /expects 9 NSN digits/);
+});
+
+await test("offline MY probe skips non-Malaysian numbers", async () => {
+  const m = byModule((await check({ phone: "+15550100", ip: "9.9.9.22" })).events);
+  assert.equal(m.my_number.status, "skipped");
+});
+
 await test("amazon is skipped with an explanation", async () => {
   const m = byModule((await check({ ip: "9.9.9.8" })).events);
   assert.equal(m.amazon.status, "skipped");
@@ -171,9 +191,10 @@ await test("unknown path 404s and healthz lists probes", async () => {
   const health = await worker.fetch(new Request("https://api.example/healthz"), ENV);
   const body = await health.json();
   assert.ok(body.probes.includes("instagram") && body.probes.includes("mocean"));
-  // 15 probes ship in the catalogue; the edge build implements 14 (amazon is
+  // 16 probes ship in the catalogue; the edge build implements 15 (amazon is
   // skipped here and says so).
-  assert.equal(body.probes.length, 14);
+  assert.equal(body.probes.length, 15);
+  assert.ok(body.probes.includes("my_number"));
   assert.ok(!body.probes.includes("amazon"));
 });
 

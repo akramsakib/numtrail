@@ -89,21 +89,22 @@
     <h2 id="setup-title">This build has no backend attached</h2>
     <p>
       GitHub Pages serves files only — it cannot make the outbound requests these checks
-      need. Attach one of these and the same page runs real probes. No simulations here.
+      need. The <strong>offline Malaysian numbering probe runs anyway</strong> (it is pure
+      arithmetic, no network). Attach one of these for the other fifteen.
     </p>
     <ol>
       <li>
-        <strong>Cloudflare Worker</strong> <span class="tag">free · ~5 min · 14 of 15 probes</span><br>
+        <strong>Cloudflare Worker</strong> <span class="tag">free · ~5 min · 15 of 16 probes</span><br>
         <code>wrangler deploy numtrail/web/worker.js --name numtrail-api</code>, then add the repo
         variable <code>NUMTRAIL_API_BASE</code> = that worker URL and re-run the Pages workflow.
       </li>
       <li>
-        <strong>Render / Fly / any Docker host</strong> <span class="tag">free tier · all 15 probes</span><br>
+        <strong>Render / Fly / any Docker host</strong> <span class="tag">free tier · all 16 probes</span><br>
         Deploy this repo as-is. <code>numtrail-web</code> serves the UI and the API from one origin,
         so there is no CORS to configure and nothing to point at.
       </li>
       <li>
-        <strong>This machine</strong> <span class="tag">all 15 probes</span><br>
+        <strong>This machine</strong> <span class="tag">all 16 probes</span><br>
         <code>pip install -e . &amp;&amp; numtrail-web --port 8000</code>
       </li>
     </ol>

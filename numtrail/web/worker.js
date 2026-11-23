@@ -372,6 +372,55 @@ async function probeKeyed(name, phone, env) {
   return res(name, status, detail);
 }
 
+
+/* --------------------------------------------- offline probes (no fetch at all) */
+const MY_BLOCKS = {
+  12: ["Maxis", 7, "allocated"], 17: ["Maxis", 7, "allocated"],
+  13: ["Celcom", 7, "allocated"], 19: ["Celcom", 7, "allocated"],
+  16: ["Digi", 7, "allocated"], 18: ["U Mobile", 7, "allocated"],
+  10: ["Celcom / XOX / MVNOs", 7, "shared"], 14: ["unifi Mobile / MVNOs", 7, "shared"],
+  15: ["MVNOs (Tune Talk, XOX, redONE…)", 7, "shared"],
+  11: ["all operators (universal block, 2010)", 8, "shared"],
+};
+const MY_AREAS = {
+  3: "Kuala Lumpur / Selangor", 4: "Penang / Kedah / Perlis", 5: "Perak",
+  6: "Melaka / Negeri Sembilan / Johor (north)", 7: "Johor",
+  82: "Sarawak (Kuching)", 83: "Sarawak (Sri Aman)", 84: "Sarawak (Sibu)",
+  85: "Sarawak (Miri / Limbang)", 86: "Sarawak (Bintulu)",
+  87: "Sabah (interior)", 88: "Sabah (Kota Kinabalu)", 89: "Sabah (Sandakan / Tawau)",
+  9: "Kelantan / Terengganu / Pahang",
+};
+
+function decodeMalaysia(phone) {
+  if (phone.dial !== "60") return ["skipped", `Malaysian numbering only (this is +${phone.dial})`];
+  const nsn = phone.national.replace(/^0+/, "");
+  if (!/^\d+$/.test(nsn)) return ["not_found", "not a numeric national number"];
+  if (nsn.startsWith("1")) {
+    if (nsn.startsWith("11")) {
+      if (nsn.length !== 10) return ["not_found", `011 block needs 10 NSN digits, got ${nsn.length}`];
+      return ["found", "mobile · 011 universal block · 8-digit subscriber · allocated to all operators · MNP applies"];
+    }
+    const block = nsn.slice(0, 2);
+    const spec = MY_BLOCKS[block];
+    if (!spec) return ["not_found", `01x block 0${block} is not in the Malaysian plan`];
+    const [owner, subscriber, certainty] = spec;
+    if (nsn.length !== 2 + subscriber) {
+      return ["not_found", `0${block} block expects ${2 + subscriber} NSN digits, got ${nsn.length}`];
+    }
+    const qualifier = certainty === "allocated" ? " (portable — active carrier may differ)" : "";
+    return ["found", `mobile · 0${block} block · ${subscriber}-digit subscriber · allocated to ${owner}${qualifier}`];
+  }
+  const area = (nsn.startsWith("8") && nsn.length > 2) ? nsn.slice(0, 2) : nsn.slice(0, 1);
+  const where = MY_AREAS[area];
+  if (!where) return ["not_found", `0${nsn.slice(0, 1)} is not an allocated Malaysian area code`];
+  if (nsn.length < 7 || nsn.length > 9) return ["not_found", `fixed-line NSN of ${nsn.length} digits is implausible`];
+  return ["found", `fixed line · area 0${area} (${where})`];
+}
+
+const LOCAL = {
+  my_number: (phone) => decodeMalaysia(phone),
+};
+
 const PROBES = {
   instagram: probeInstagram,
   snapchat: probeSnapchat,
@@ -384,6 +433,10 @@ const PROBES = {
 async function safeProbe(name, phone, env) {
   if (name === "amazon") {
     return res("amazon", "skipped", "HTML claim flow not ported to the edge build; run the Python server");
+  }
+  if (LOCAL[name]) {
+    const [status, detail] = LOCAL[name](phone);
+    return res(name, status, detail);
   }
   if (KEYED[name]) {
     try {
@@ -410,8 +463,11 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers });
 
     if (url.pathname === "/healthz") {
-      return Response.json({ ok: true, probes: [...Object.keys(PROBES), ...Object.keys(KEYED)],
-                             sites: 160, runtime: "cloudflare-worker" }, { headers });
+      return Response.json({
+        ok: true,
+        probes: [...Object.keys(PROBES), ...Object.keys(KEYED), ...Object.keys(LOCAL)],
+        sites: 161, runtime: "cloudflare-worker",
+      }, { headers });
     }
 
     if (url.pathname === "/api/catalog" && env.STATIC_ORIGIN) {
@@ -444,8 +500,8 @@ export default {
       return Response.json({ error: err.message }, { status: 400, headers });
     }
 
-    const names = ["instagram", "snapchat", "amazon", "twilio", "numverify",
-                   "abstractapi", "veriphone", "vonage", "ipqualityscore",
+    const names = ["my_number", "instagram", "snapchat", "amazon", "twilio",
+                   "numverify", "abstractapi", "veriphone", "vonage", "ipqualityscore",
                    "telesign", "plivo", "bird", "numlookupapi", "trestle", "mocean"];
     const started = Date.now();
     const encoder = new TextEncoder();
@@ -454,7 +510,7 @@ export default {
       async start(controller) {
         const send = (obj) => controller.enqueue(encoder.encode(JSON.stringify(obj) + "\n"));
         send({ type: "meta", phone: phone.e164, iso: phone.iso,
-               automated: names.length, total: 160 });
+               automated: names.length, total: 161 });
         await Promise.all(names.map(async (name) => {
           send(await safeProbe(name, phone, env));
         }));

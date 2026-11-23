@@ -34,6 +34,86 @@
     skipped: "skipped", manual: "manual", pending: "checking…",
   };
 
+
+  /* ------------------------------------------------- offline probes (no API)
+   * Mirrors numtrail/modules/offline/my_number.py. Pure, synchronous, and it
+   * runs with or without a backend — that is the point: a static GitHub Pages
+   * build can still answer real questions about a Malaysian number.
+   */
+  const MY_BLOCKS = {
+    12: ["Maxis", 7, "allocated"], 17: ["Maxis", 7, "allocated"],
+    13: ["Celcom", 7, "allocated"], 19: ["Celcom", 7, "allocated"],
+    16: ["Digi", 7, "allocated"], 18: ["U Mobile", 7, "allocated"],
+    10: ["Celcom / XOX / MVNOs", 7, "shared"],
+    14: ["unifi Mobile / MVNOs", 7, "shared"],
+    15: ["MVNOs (Tune Talk, XOX, redONE…)", 7, "shared"],
+    11: ["all operators (universal block, 2010)", 8, "shared"],
+  };
+  const MY_AREAS = {
+    3: "Kuala Lumpur / Selangor", 4: "Penang / Kedah / Perlis", 5: "Perak",
+    6: "Melaka / Negeri Sembilan / Johor (north)", 7: "Johor",
+    82: "Sarawak (Kuching)", 83: "Sarawak (Sri Aman)", 84: "Sarawak (Sibu)",
+    85: "Sarawak (Miri / Limbang)", 86: "Sarawak (Bintulu)",
+    87: "Sabah (interior)", 88: "Sabah (Kota Kinabalu)", 89: "Sabah (Sandakan / Tawau)",
+    9: "Kelantan / Terengganu / Pahang",
+  };
+
+  function decodeMalaysia(digits) {
+    if (!digits.startsWith("60")) return ["skipped", `Malaysian numbering only (this is +${digits.slice(0, 2)})`];
+    const nsn = digits.slice(2).replace(/^0+/, "");
+    if (!/^\d+$/.test(nsn)) return ["not_found", "not a numeric national number"];
+
+    if (nsn.startsWith("1")) {
+      if (nsn.startsWith("11")) {
+        if (nsn.length !== 10) {
+          return ["not_found", `011 block needs 10 NSN digits, got ${nsn.length}`];
+        }
+        return ["found", "mobile · 011 universal block · 8-digit subscriber · " +
+                        "allocated to all operators (universal block, 2010) · MNP applies"];
+      }
+      const block = nsn.slice(0, 2);
+      const spec = MY_BLOCKS[block];
+      if (!spec) return ["not_found", `01x block 0${block} is not in the Malaysian plan`];
+      const [owner, subscriber, certainty] = spec;
+      const expected = 2 + subscriber;
+      if (nsn.length !== expected) {
+        return ["not_found", `0${block} block expects ${expected} NSN digits, got ${nsn.length}`];
+      }
+      const qualifier = certainty === "allocated" ? " (portable — active carrier may differ)" : "";
+      return ["found", `mobile · 0${block} block · ${subscriber}-digit subscriber · ` +
+                       `allocated to ${owner}${qualifier}`];
+    }
+
+    const area = (nsn.startsWith("8") && nsn.length > 2 ? nsn.slice(0, 2) : nsn.slice(0, 1));
+    const where = MY_AREAS[area];
+    if (!where) return ["not_found", `0${nsn.slice(0, 1)} is not an allocated Malaysian area code`];
+    if (nsn.length < 7 || nsn.length > 9) {
+      return ["not_found", `fixed-line NSN of ${nsn.length} digits is implausible`];
+    }
+    return ["found", `fixed line · area 0${area} (${where})`];
+  }
+
+  function prettyMY(digits) {
+    const nsn = digits.slice(2).replace(/^0+/, "");
+    const local = "0" + nsn;
+    if (nsn.startsWith("11") && nsn.length === 10) return `${local.slice(0, 3)}-${local.slice(3, 7)} ${local.slice(7)}`;
+    if (local.length === 10) return `${local.slice(0, 3)}-${local.slice(3, 6)} ${local.slice(6)}`;
+    return `${local.slice(0, 2)}-${local.slice(2, 5)} ${local.slice(5)}`;
+  }
+
+  function runLocalProbes(phone) {
+    const digits = String(phone).replace(/\D/g, "");
+    const out = [];
+    for (const site of state.catalog) {
+      if (!site.offline || !site.probe) continue;
+      const [status, detail] = decodeMalaysia(digits);
+      const extra = status === "found" && digits.startsWith("60") ? ` · ${prettyMY(digits)}` : "";
+      out.push({ type: "result", module: site.probe, domain: site.domain, status,
+                 found: status === "found", detail: detail + extra, local: true });
+    }
+    return out;
+  }
+
   /* ------------------------------------------------------------------ utils */
   const digitsOf = (raw) => String(raw).replace(/[^\d+]/g, "").replace(/(?!^)\+/g, "");
   const numberParts = (raw) => {
@@ -101,7 +181,8 @@
     link.className = "open";
     link.target = "_blank";
     link.rel = "noreferrer noopener";
-    link.textContent = site.probe ? "open sign-in →" : "check manually →";
+    link.textContent = site.offline ? "numbering plan →"
+      : site.probe ? "open sign-in →" : "check manually →";
     link.href = lookupUrl(site, el.phone.value || "");
 
     card.append(head, status, detail, link);
@@ -111,7 +192,8 @@
   function renderCatalog() {
     const frag = document.createDocumentFragment();
     const ordered = [
-      ...state.catalog.filter((s) => s.probe),
+      ...state.catalog.filter((s) => s.probe && s.offline),
+      ...state.catalog.filter((s) => s.probe && !s.offline),
       ...state.catalog.filter((s) => !s.probe),
     ];
     for (const site of ordered) frag.append(cardFor(site));
@@ -216,10 +298,43 @@
       if (link) link.href = lookupUrl(site, phone);
     }
     state.automated = state.catalog.filter((s) => s.probe).length;
-    setNotice(`trailing ${phone} across ${state.automated} automated probes + ${state.catalog.length - state.automated} manual links…`);
+    setNotice(`trailing ${phone} across ${state.automated} probes…`);
     history.replaceState(null, "", "#" + encodeURIComponent(phone));
 
     const started = performance.now();
+
+    // always: the probes that need nothing
+    for (const result of runLocalProbes(phone)) {
+      updateCard(result);
+      state.settled++;
+    }
+    if (!state.backend) {
+      for (const card of el.grid.children) {
+        if (card.dataset.automated !== "1") continue;
+        const site = state.catalog.find((x) => x.id === card.dataset.site);
+        if (site && site.offline) continue;
+        card.dataset.status = "skipped";
+        card.classList.remove("pending");
+        const label = card.querySelector(".status span");
+        if (label) label.textContent = "needs a backend";
+        const note = card.querySelector(".detail");
+        if (note) note.textContent = "attach an API to run this probe";
+      }
+      state.running = false;
+      el.run.disabled = false;
+      const hits = [...state.results.values()].filter((r) => r.local);
+      const found = hits.filter((r) => r.status === "found").length;
+      setNotice(
+        hits.length
+          ? `${found ? "answered" : "no answer"} from the offline probe · ${hits.length} of ` +
+            `${state.automated} probes can run without a backend (see the panel below)`
+          : "no offline probe applies to this number — see the panel below",
+        hits.length ? "" : "err"
+      );
+      applyFilters();
+      return;
+    }
+
     try {
       await streamCheck(phone);
     } catch (err) {
@@ -299,14 +414,17 @@
     state.backend = false;
     const panel = document.getElementById("setup");
     if (panel) panel.hidden = false;
-    el.run.disabled = true;
-    // never leave a card looking "queued" when nothing is going to run
+    // Offline probes still run, so the button stays live — a number like +60…
+    // gets a real answer even on a static-only deploy.
+    el.run.disabled = false;
     for (const card of el.grid.children) {
       if (card.dataset.automated !== "1") continue;
+      const site = state.catalog.find((x) => x.id === card.dataset.site);
+      if (site && site.offline) continue;
       card.dataset.status = "skipped";
       card.classList.remove("pending");
       const label = card.querySelector(".status span");
-      if (label) label.textContent = "no backend";
+      if (label) label.textContent = "needs a backend";
       const note = card.querySelector(".detail");
       if (note) note.textContent = "attach an API to run this probe";
     }
