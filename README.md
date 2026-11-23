@@ -33,7 +33,7 @@ pip install -e ".[dev]"      # from this checkout
 numtrail --list-modules
 ```
 
-Requires Python 3.9+. Two runtime dependencies (`httpx`, `beautifulsoup4`), plus
+Requires Python 3.10+. Two runtime dependencies (`httpx`, `beautifulsoup4`), plus
 `rich` if you want the pretty table.
 
 ## Usage
@@ -272,7 +272,7 @@ make docker                  # build and run the container
 make check                   # what CI runs
 ```
 
-`.github/workflows/ci.yml` runs the python suite on 3.9 / 3.12 / 3.13, the worker
+`.github/workflows/ci.yml` runs the python suite on 3.10 / 3.12 / 3.13, the worker
 tests on node 20, fails if `catalog.json` drifts from `catalog.py`, and builds a
 wheel that it installs and smoke-tests before uploading it as an artifact.
 

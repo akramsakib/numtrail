@@ -7,12 +7,16 @@ name = "numtrail"
 version = "0.1.0"
 description = "Trace where a phone number is registered, with a pluggable module registry."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"   # dataclass(slots=True) in models/registry/phone
 license = { text = "GPL-3.0-or-later" }
 authors = [{ name = "numtrail contributors" }]
 keywords = ["osint", "phone", "enumeration", "reconnaissance"]
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Environment :: Console",
     "Topic :: Security",
