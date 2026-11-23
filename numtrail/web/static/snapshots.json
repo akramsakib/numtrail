@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-23T06:58:53Z",
+  "generated_at": "2026-11-23T06:59:56Z",
   "generator": "numtrail.snapshot",
   "watchlist_size": 4,
   "credentials_present": [],
@@ -8,7 +8,7 @@
     "+60123456789": {
       "iso": "MY",
       "pretty": "+60 123456789",
-      "probed_at": "2026-11-23T06:58:48Z",
+      "probed_at": "2026-11-23T06:59:50Z",
       "conclusive": 1,
       "found": [
         "mcmc.gov.my"
@@ -26,11 +26,11 @@
         {
           "module": "amazon",
           "domain": "amazon.com",
-          "status": "blocked",
+          "status": "error",
           "found": false,
-          "detail": "Amazon served its captcha interstitial",
+          "detail": "inconclusive response (HTTP 200)",
           "semantic": "account_exists",
-          "elapsed": 0.16
+          "elapsed": 0.662
         },
         {
           "module": "bird",
@@ -48,7 +48,7 @@
           "found": false,
           "detail": "429 from the lookup endpoint; rotate IP with --proxy",
           "semantic": "account_exists",
-          "elapsed": 0.152
+          "elapsed": 0.167
         },
         {
           "module": "ipqualityscore",
@@ -111,7 +111,7 @@
           "found": false,
           "detail": "answered HTML instead of JSON: endpoint now needs a real session (set NUMTRAIL_SNAPCHAT_COOKIE)",
           "semantic": "account_exists",
-          "elapsed": 0.615
+          "elapsed": 0.967
         },
         {
           "module": "telesign",
@@ -163,7 +163,7 @@
     "+601112345678": {
       "iso": "MY",
       "pretty": "+60 1112345678",
-      "probed_at": "2026-11-23T06:58:49Z",
+      "probed_at": "2026-11-23T06:59:52Z",
       "conclusive": 1,
       "found": [
         "mcmc.gov.my"
@@ -181,11 +181,11 @@
         {
           "module": "amazon",
           "domain": "amazon.com",
-          "status": "blocked",
+          "status": "error",
           "found": false,
-          "detail": "Amazon served its captcha interstitial",
+          "detail": "inconclusive response (HTTP 200)",
           "semantic": "account_exists",
-          "elapsed": 0.214
+          "elapsed": 0.668
         },
         {
           "module": "bird",
@@ -203,7 +203,7 @@
           "found": false,
           "detail": "429 from the lookup endpoint; rotate IP with --proxy",
           "semantic": "account_exists",
-          "elapsed": 0.141
+          "elapsed": 0.144
         },
         {
           "module": "ipqualityscore",
@@ -266,7 +266,7 @@
           "found": false,
           "detail": "answered HTML instead of JSON: endpoint now needs a real session (set NUMTRAIL_SNAPCHAT_COOKIE)",
           "semantic": "account_exists",
-          "elapsed": 0.607
+          "elapsed": 0.731
         },
         {
           "module": "telesign",
@@ -318,7 +318,7 @@
     "+60321123456": {
       "iso": "MY",
       "pretty": "+60 321123456",
-      "probed_at": "2026-11-23T06:58:50Z",
+      "probed_at": "2026-11-23T06:59:54Z",
       "conclusive": 1,
       "found": [
         "mcmc.gov.my"
@@ -336,11 +336,11 @@
         {
           "module": "amazon",
           "domain": "amazon.com",
-          "status": "blocked",
+          "status": "error",
           "found": false,
-          "detail": "Amazon served its captcha interstitial",
+          "detail": "inconclusive response (HTTP 200)",
           "semantic": "account_exists",
-          "elapsed": 0.155
+          "elapsed": 0.66
         },
         {
           "module": "bird",
@@ -358,7 +358,7 @@
           "found": false,
           "detail": "429 from the lookup endpoint; rotate IP with --proxy",
           "semantic": "account_exists",
-          "elapsed": 0.188
+          "elapsed": 0.167
         },
         {
           "module": "ipqualityscore",
@@ -421,7 +421,7 @@
           "found": false,
           "detail": "answered HTML instead of JSON: endpoint now needs a real session (set NUMTRAIL_SNAPCHAT_COOKIE)",
           "semantic": "account_exists",
-          "elapsed": 0.574
+          "elapsed": 0.542
         },
         {
           "module": "telesign",
@@ -473,7 +473,7 @@
     "+15550100": {
       "iso": "US",
       "pretty": "+1 5550100",
-      "probed_at": "2026-11-23T06:58:53Z",
+      "probed_at": "2026-11-23T06:59:56Z",
       "conclusive": 0,
       "found": [],
       "results": [
@@ -489,11 +489,11 @@
         {
           "module": "amazon",
           "domain": "amazon.com",
-          "status": "error",
+          "status": "blocked",
           "found": false,
-          "detail": "inconclusive response (HTTP 200)",
+          "detail": "no claim form on the page (bot-wall or new layout)",
           "semantic": "account_exists",
-          "elapsed": 0.802
+          "elapsed": 0.197
         },
         {
           "module": "bird",
@@ -511,7 +511,7 @@
           "found": false,
           "detail": "429 from the lookup endpoint; rotate IP with --proxy",
           "semantic": "account_exists",
-          "elapsed": 0.14
+          "elapsed": 0.11
         },
         {
           "module": "ipqualityscore",
@@ -574,7 +574,7 @@
           "found": false,
           "detail": "answered HTML instead of JSON: endpoint now needs a real session (set NUMTRAIL_SNAPCHAT_COOKIE)",
           "semantic": "account_exists",
-          "elapsed": 0.832
+          "elapsed": 0.527
         },
         {
           "module": "telesign",
