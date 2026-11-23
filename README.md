@@ -223,6 +223,20 @@ keeps the site a viewer rather than an open enumeration service.
 | Cloudflare Worker | any number | a Cloudflare account |
 | Render / Docker | any number | a Render account or a box |
 
+## Credits and licences
+
+numtrail is GPL-3.0. The ported work keeps its upstream licence and commit:
+
+| what | upstream | licence | where |
+| --- | --- | --- | --- |
+| snapchat / instagram / amazon protocols | megadose/ignorant | GPL-3.0 | `numtrail/modules/legacy/`, GPL-compatible with this repo |
+| 205-entry dial→territory table | megadose/ignorant | GPL-3.0 | `numtrail/modules/ignorant/__init__.py` |
+| 478 site definitions | sherlock-project/sherlock | MIT | `numtrail/usercheck/data/sherlock.json.gz` |
+| 3,268 site definitions | soxoj/maigret | MIT | `numtrail/usercheck/data/maigret.json.gz` |
+
+The vendored JSON files carry their upstream commit and licence inside the file;
+`numtrail-user --list` prints them.
+
 ## The three cloned backends
 
 numtrail's probes are ports, not lookalikes. Each one keeps the upstream request
