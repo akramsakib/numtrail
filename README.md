@@ -243,18 +243,38 @@ Dockerfile     UI + API in one container
 render.yaml    one-click Render blueprint
 fly.toml       fly launch --copy-config
 .github/workflows/pages.yml   Pages deploy, wires NUMTRAIL_API_BASE into config.js
-tests/          281 tests, all offline (httpx.MockTransport + a real local server)
+tests/          281 python tests + 15 worker tests, all offline
+Makefile        install / test / serve / build / docker / check
+.github/        ci.yml (tests, packaging) + pages.yml (deploy)
 ```
 
 ## Tests
 
 ```bash
-python3 -m pytest        # no network needed
+python3 -m pytest            # 281 python tests, offline
+node tests/worker.test.mjs   # 15 tests for the Cloudflare Worker build
+make check                   # both, plus a catalogue-sync check
 ```
 
 Every module is tested against recorded-shape responses: the 429 path, the
 HTML-instead-of-JSON path, the 406 claim path, bad keys, quota errors, garbage
-bodies, timeouts, and the retry loop.
+bodies, timeouts, and the retry loop. The web server is tested over real HTTP
+with the engine stubbed, and the edge build is tested by driving `worker.js`'s
+fetch handler with a stubbed `fetch` and asserting on the NDJSON it streams.
+
+## Build
+
+```bash
+make install                 # editable install + dev extras
+make build                   # sdist + wheel in dist/, verified in a clean venv
+make serve                   # web app on :8000
+make docker                  # build and run the container
+make check                   # what CI runs
+```
+
+`.github/workflows/ci.yml` runs the python suite on 3.9 / 3.12 / 3.13, the worker
+tests on node 20, fails if `catalog.json` drifts from `catalog.py`, and builds a
+wheel that it installs and smoke-tests before uploading it as an artifact.
 
 ## What changed from ignorant
 

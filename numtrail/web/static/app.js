@@ -392,9 +392,8 @@
     try {
       const health = await fetch(apiBase + "healthz", { cache: "no-store" });
       if (!health.ok) throw new Error(`healthz ${health.status}`);
-      const info = await health.json();
+      await health.json();   // shape check only; the catalogue decides card count
       state.backend = true;
-      if (info.probes) state.automatedCount = info.probes.length;
     } catch (err) {
       backendMissing(
         `this build has no API at ${apiBase || "this origin"} — GitHub Pages cannot run checks. ` +

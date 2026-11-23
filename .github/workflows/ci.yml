@@ -1,0 +1,82 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: tests · python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install
+        run: python -m pip install --quiet -e ".[dev]"
+      - name: Unit + integration tests (offline)
+        run: python -m pytest -q
+      - name: Catalogue is in sync with catalog.py
+        run: |
+          python -m numtrail.catalog --write
+          git diff --exit-code numtrail/web/static/catalog.json \
+            || (echo "::error::catalog.json is stale — run python -m numtrail.catalog --write" && exit 1)
+      - name: CLI smoke test
+        run: |
+          numtrail --version
+          numtrail --list-modules
+          numtrail +15550100 -m instagram --json --timeout 5 --retries 0 | head -20 || true
+
+  worker:
+    name: edge build · node
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Syntax check
+        run: |
+          node --check numtrail/web/worker.js
+          node -e "new Function(require('fs').readFileSync('numtrail/web/static/app.js','utf8'))"
+      - name: Worker contract tests
+        run: node tests/worker.test.mjs
+
+  package:
+    name: build sdist + wheel
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --quiet build
+      - run: python -m build
+      - name: Verify the wheel actually works
+        run: |
+          python -m venv /tmp/venv
+          /tmp/venv/bin/pip install --quiet dist/*.whl
+          /tmp/venv/bin/numtrail --version
+          /tmp/venv/bin/numtrail --list-modules | head -5
+          # run from /tmp so python imports the *installed wheel*, not the checkout
+          cd /tmp && /tmp/venv/bin/python -c "
+          import pathlib, numtrail
+          static = pathlib.Path(numtrail.__file__).parent / 'web' / 'static'
+          assert '/tmp/venv' in numtrail.__file__, 'imported the source tree, not the wheel'
+          assert (static / 'index.html').is_file(), 'static UI missing from the wheel'
+          assert (static / 'catalog.json').is_file(), 'catalog.json missing from the wheel'
+          print('wheel ships the web UI:', static)
+          "
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/*
+          retention-days: 14
