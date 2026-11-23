@@ -205,7 +205,7 @@ def test_post_payloads_that_are_objects_do_not_explode():
     assert bodies[0] == '{"username": "akram", "remember": true}'
 
 
-def test_cli_writes_a_json_the_page_can_read(tmp_path, monkeypatch, capsys):
+def test_cli_writes_a_json_the_page_can_read(tmp_path, monkeypatch):
     """usernames.json is what the Pages site renders, so its shape is a contract."""
     import json
 
@@ -221,8 +221,98 @@ def test_cli_writes_a_json_the_page_can_read(tmp_path, monkeypatch, capsys):
 
     assert cli(["akram", "--db", "sherlock", "--json", str(out)]) == 0
     data = json.loads(out.read_text())
-    assert set(data) >= {"username", "database", "generated_at", "checked",
-                         "conclusive", "results"}
-    assert data["username"] == "akram" and data["checked"] == 2
-    assert data["generated_at"].endswith("Z")
-    assert {r["status"] for r in data["results"]} == {"found", "blocked"}
+    assert data["generator"] == "numtrail.usercheck"
+    assert data["latest"] == "akram"
+    entry = data["usernames"]["akram"]
+    assert set(entry) >= {"database", "generated_at", "checked", "conclusive", "results"}
+    assert entry["checked"] == 2 and entry["generated_at"].endswith("Z")
+    assert {r["status"] for r in entry["results"]} == {"found", "blocked"}
+
+
+# ------------------------------------------------------------------- the store
+def _run(name, *, when, status=Status.FOUND, database="sherlock", n=2):
+    return {
+        "username": name, "database": database, "generated_at": when,
+        "checked": n, "conclusive": n,
+        "results": [{"site": f"site{i}", "domain": f"site{i}.com",
+                     "status": status.value, "found": status is Status.FOUND,
+                     "url": f"https://site{i}.com/{name}", "detail": "x",
+                     "elapsed": 0.1, "source": database} for i in range(n)],
+    }
+
+
+def test_store_keeps_several_usernames(tmp_path):
+    from numtrail.usercheck import store
+
+    path = tmp_path / "usernames.json"
+    first = store.merge(store.load(path), "torvalds",
+                        _run("torvalds", when="2026-01-01T00:00:00Z"))
+    path.write_text(store.dumps(first))
+    second = store.merge(store.load(path), "sakib112",
+                         _run("sakib112", when="2026-01-02T00:00:00Z"))
+    path.write_text(store.dumps(second))
+
+    reloaded = store.load(path)
+    assert set(store.runs(reloaded)) == {"torvalds", "sakib112"}
+    assert reloaded["latest"] == "sakib112"
+    assert store.get(reloaded, "@sakib112")["checked"] == 2
+
+
+def test_store_migrates_the_old_single_run_file(tmp_path):
+    import json
+
+    from numtrail.usercheck import store
+
+    path = tmp_path / "usernames.json"
+    path.write_text(json.dumps(_run("torvalds", when="2026-01-01T00:00:00Z")))
+    migrated = store.load(path)
+    assert list(store.runs(migrated)) == ["torvalds"]
+    assert migrated["latest"] == "torvalds"
+
+
+def test_store_rerunning_a_username_replaces_it(tmp_path):
+    from numtrail.usercheck import store
+
+    path = tmp_path / "usernames.json"
+    store_a = store.merge(store.load(path), "sakib112",
+                          _run("sakib112", when="2026-01-01T00:00:00Z", n=2))
+    store_b = store.merge(store_a, "sakib112",
+                          _run("sakib112", when="2026-01-03T00:00:00Z", n=5))
+    entry = store.get(store_b, "sakib112")
+    assert entry["checked"] == 5
+    assert entry["generated_at"] == "2026-01-03T00:00:00Z"
+    assert len(store.runs(store_b)) == 1
+
+
+def test_store_prunes_to_the_newest_and_stays_under_budget():
+    from numtrail.usercheck import store
+
+    s = store.empty()
+    for day in range(1, 12):
+        s = store.merge(s, f"user{day}",
+                        _run(f"user{day}", when=f"2026-01-{day:02d}T00:00:00Z", n=40),
+                        keep=3)
+    assert len(store.runs(s)) == 3
+    assert set(store.runs(s)) == {"user9", "user10", "user11"}
+
+    s2 = store.merge(store.empty(), "big", _run("big", when="2026-02-01T00:00:00Z", n=4000),
+                     keep=8, keep_bytes=5_000)
+    assert store.runs(s2) == {} or len(store.runs(s2)) <= 1
+
+
+def test_cli_merge_keeps_earlier_usernames(tmp_path, monkeypatch):
+    from numtrail.usercheck.__main__ import main as cli
+
+    async def fake_check_username(username, sites, *, limit=None, **kw):
+        return [runner.UserResult("GitHub", "github.com", Status.FOUND, "HTTP 200",
+                                  "https://github.com/" + username, 0.01, "sherlock")]
+
+    monkeypatch.setattr(runner, "check_username", fake_check_username)
+    out = tmp_path / "usernames.json"
+    assert cli(["torvalds", "--json", str(out)]) == 0
+    assert cli(["@sakib112", "--json", str(out)]) == 0
+
+    import json
+    data = json.loads(out.read_text())
+    assert set(data["usernames"]) == {"torvalds", "sakib112"}
+    assert data["latest"] == "sakib112"

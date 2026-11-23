@@ -13,9 +13,10 @@ import collections
 import json
 import sys
 from datetime import datetime, timezone
+from pathlib import Path
 
 from ..models import Status
-from . import db, runner
+from . import db, runner, store
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -29,7 +30,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--concurrency", type=int, default=12)
     parser.add_argument("--timeout", type=float, default=15.0)
     parser.add_argument("--found-only", action="store_true")
-    parser.add_argument("--json", default=None, help="write the full result list here")
+    parser.add_argument("--json", default=None,
+                        help="write results here, merging into what is already there")
+    parser.add_argument("--keep", type=int, default=store.DEFAULT_KEEP,
+                        help="how many usernames to keep in that file")
     parser.add_argument("--list", action="store_true", help="print the vendored databases and exit")
     args = parser.parse_args(argv)
 
@@ -79,16 +83,19 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.json:
         payload = {
-            "username": args.username,
             "database": args.db,
             "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "checked": len(results),
             "conclusive": conclusive,
             "results": [r.as_dict() for r in results],
         }
-        with open(args.json, "w", encoding="utf-8") as fh:
-            json.dump(payload, fh, indent=2)
-        print(f"wrote {args.json}")
+        path = Path(args.json)
+        merged = store.merge(store.load(path), args.username, payload, keep=args.keep)
+        path.write_text(store.dumps(merged), encoding="utf-8")
+        others = [n for n in store.runs(merged) if n != args.username]
+        print(f"wrote {path} — @{args.username}"
+              + (f" plus {len(others)} earlier: {', '.join('@' + n for n in others)}"
+                 if others else ""))
     return 0
 
 

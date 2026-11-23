@@ -309,3 +309,6 @@ main { max-width: 1400px; margin: 0 auto; padding: 12px clamp(16px, 4vw, 44px) 6
   .user-row { grid-template-columns: 1fr auto; row-gap: 3px; }
   .u-domain, .u-detail { grid-column: 1 / -1; }
 }
+
+#user-known { margin-bottom: 8px; }
+#user-known .chip.note { opacity: .6; }

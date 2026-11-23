@@ -243,11 +243,16 @@ The Pages build has two modes, switched by the chips at the top of the console:
 
 * **phone number** — the offline Malaysian probe plus whatever the `snapshot`
   workflow committed for that number;
-* **username** — the results the `username` workflow committed to
-  `usernames.json`, filterable by status (found / not found / blocked / limited /
-  no answer) and searchable by site.
+* **username** — every run the `username` workflow has committed, filterable by
+  status (found / not found / blocked / limited / no answer) and searchable by
+  site. The chips under the header are the usernames currently in the file; click
+  one to switch instantly, no workflow run needed.
 
 `https://akramsakib.github.io/numtrail/#@torvalds` opens username mode directly.
+
+`usernames.json` is a store, not a single run: each dispatch adds or refreshes
+one username, and the file keeps the newest 8 within a 4 MB budget, so a Maigret
+run does not push everything else out. Re-running a username replaces its entry.
 
 Two sources, in this order, and the page says which one answered:
 

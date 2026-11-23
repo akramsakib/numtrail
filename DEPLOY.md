@@ -125,6 +125,9 @@ Numbers use the snapshot workflow. Usernames use their own:
 2. The runner writes `numtrail/web/static/usernames.json`, commits it, and
    redeploys Pages. The run's own summary lists what was found, and what refused
    to answer, with the reason.
+3. The file accumulates: it keeps the newest 8 usernames (4 MB budget), so
+   checking a second person does not throw away the first. On the site, the
+   chips under the header are the usernames it currently serves.
 
 Locally: `numtrail-user akram --db sherlock --limit 40 --json out.json`.
 

@@ -21,7 +21,7 @@
     userField: $("user-field"), username: $("username"),
     userResults: $("user-results"), userTitle: $("user-title"),
     userSub: $("user-sub"), userFilters: $("user-filters"),
-    userList: $("user-list"), userSearch: $("user-search"),
+    userList: $("user-list"), userSearch: $("user-search"), userKnown: $("user-known"),
   };
 
   const state = {
@@ -333,8 +333,32 @@
     return String(raw).trim().replace(/^@+/, "");
   }
 
+  /* The committed file is a store of several usernames:
+   *   {latest, generated_at, usernames: {"name": {database, generated_at,
+   *                                                checked, conclusive, results}}}
+   * v1 files held a single run at the top level; both shapes are read. */
+  function userStore() {
+    const data = state.usernames;
+    if (!data) return {};
+    if (data.usernames && typeof data.usernames === "object") return data.usernames;
+    if (data.results) {
+      return { [data.username]: {
+        database: data.database, generated_at: data.generated_at,
+        checked: data.checked, conclusive: data.conclusive, results: data.results,
+      } };
+    }
+    return {};
+  }
+
   function committedUser() {
-    return state.usernames && state.usernames.username ? state.usernames.username : null;
+    const data = state.usernames;
+    if (!data) return null;
+    if (data.latest && userStore()[data.latest]) return data.latest;
+    return Object.keys(userStore())[0] || null;
+  }
+
+  function knownUsers() {
+    return Object.keys(userStore()).sort();
   }
 
   function renderUsers(username, results, sourceLine) {
@@ -349,6 +373,7 @@
     const conclusive = found + (tally.not_found || 0);
     const silent = results.length - conclusive;
 
+    paintKnown();
     el.userTitle.textContent = `@${username}`;
     el.userSub.textContent =
       `${results.length} sites checked · ${found} found · ${tally.not_found || 0} not found · ` +
@@ -370,6 +395,29 @@
       if (node) node.textContent = value;
     }
     paintUsers();
+  }
+
+  function paintKnown() {
+    const known = knownUsers();
+    const current = state.userShown;
+    const frag = document.createDocumentFragment();
+    for (const name of known) {
+      const button = document.createElement("button");
+      button.className = "chip" + (name === current ? " active" : "");
+      button.type = "button";
+      button.dataset.user = name;
+      const label = document.createElement("span");
+      label.textContent = "@" + name;
+      button.appendChild(label);
+      frag.appendChild(button);
+    }
+    if (!known.length) {
+      const note = document.createElement("span");
+      note.className = "chip note";
+      note.textContent = "no committed runs yet";
+      frag.appendChild(note);
+    }
+    el.userKnown.replaceChildren(frag);
   }
 
   function paintUsers() {
@@ -427,27 +475,31 @@
     }
   }
 
+  function showKnownUsersHint(username) {
+    const known = knownUsers();
+    if (!known.length) return "";
+    return ` committed so far: ${known.map((n) => "@" + n).join(", ")}.`;
+  }
+
   async function showCommitted(username, { silent = false } = {}) {
-    const data = state.usernames;
-    if (!data) {
+    if (!state.usernames) {
       setNotice(
         "no usernames.json next to this page — nothing has been probed for any username yet. " +
         "Run the username workflow in the repo, then reload.", "err");
       return false;
     }
-    if (normUser(data.username) !== username) {
+    const entry = userStore()[username];
+    if (!entry) {
       setNotice(
-        `the committed run is @${data.username} (${data.checked} sites, ` +
-        `${relTime(data.generated_at)}). Run the username workflow with @${username} to check that one — ` +
-        `a static page cannot probe by itself.`, "err");
-      if (!silent) renderUsers(data.username, data.results,
-        `from the committed run, ${relTime(data.generated_at)}`);
+        `@${username} is not in this build's committed runs.${showKnownUsersHint(username)} ` +
+        `Run the username workflow with @${username} to add it — a static page cannot probe by itself.`,
+        "err");
       return false;
     }
-    renderUsers(data.username, data.results,
-      `committed by the username workflow, ${relTime(data.generated_at)}` +
-      (data.database ? ` · ${data.database} definitions` : ""));
-    setNotice(`@${data.username} — ${data.checked} sites from the committed run`);
+    renderUsers(username, entry.results || [],
+      `committed by the username workflow, ${relTime(entry.generated_at)}` +
+      (entry.database ? ` · ${entry.database} definitions` : ""));
+    setNotice(`@${username} — ${entry.checked || (entry.results || []).length} sites from the committed run`);
     return true;
   }
 
@@ -734,6 +786,14 @@
     for (const c of el.userFilters.children) c.classList.toggle("active", c === chip);
     state.userFilter = chip.dataset.ustatus || "any";
     paintUsers();
+  });
+
+  el.userKnown.addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip[data-user]");
+    if (!chip) return;
+    const name = chip.dataset.user;
+    el.username.value = name;
+    showCommitted(name);
   });
 
   el.userSearch.addEventListener("input", () => {
