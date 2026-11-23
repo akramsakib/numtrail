@@ -48,7 +48,7 @@ from .phone import InvalidPhone, parse
 from .registry import discover, select
 
 __all__ = ["read_watchlist", "build_snapshot", "write_snapshot", "summarize",
-           "merge_snapshot", "read_snapshot", "main"]
+           "merge_snapshot", "read_snapshot", "reconcile", "parse_numbers", "main"]
 
 DEFAULT_KEEP_DISPATCH = 40
 
@@ -149,6 +149,8 @@ def read_snapshot(path: Path) -> dict | None:
 
 def _entry_source(number: str, entry: dict, watchlist: Iterable[str]) -> str:
     """Entries written before `source` existed are assumed to be watchlist ones."""
+    if not isinstance(entry, dict):      # hand-edited or foreign file
+        return "watchlist"
     if entry.get("source"):
         return entry["source"]
     return "watchlist" if number in set(watchlist) else "dispatch"
@@ -169,6 +171,8 @@ def merge_snapshot(fresh: dict, previous: dict | None, *,
         for number, entry in (previous.get("entries") or {}).items():
             if number in entries:
                 continue                      # re-probed in this run
+            if not isinstance(entry, dict):
+                continue
             if _entry_source(number, entry, watchlist) != "dispatch":
                 continue                      # dropped from watchlist.txt
             carried.append((number, {**entry, "source": "dispatch"}))
@@ -183,6 +187,27 @@ def merge_snapshot(fresh: dict, previous: dict | None, *,
     return fresh
 
 
+def reconcile(fresh_path: Path, remote_path: Path, *,
+              watchlist_path: Path | None = None,
+              keep_dispatch: int = DEFAULT_KEEP_DISPATCH) -> dict:
+    """Rebuild the snapshot after a rejected push.
+
+    Two runs can probe at the same time (a push to the probes and a Run-workflow
+    click, say). The push of the second is rejected, and a merge conflict on a
+    generated file is meaningless — so keep this run's fresh results, carry over
+    the other run's on-demand numbers, and write that.
+    """
+    fresh = read_snapshot(fresh_path)
+    if fresh is None:
+        raise SystemExit(f"no fresh snapshot at {fresh_path}")
+    remote = read_snapshot(remote_path)
+    watch: list[str] = []
+    if watchlist_path and watchlist_path.is_file():
+        watch = read_watchlist(watchlist_path)
+    return merge_snapshot(fresh, remote, watchlist=watch,
+                          keep_dispatch=keep_dispatch)
+
+
 def write_snapshot(snapshot: dict, path: Path) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(snapshot, indent=2) + "\n", encoding="utf-8")
@@ -191,21 +216,24 @@ def write_snapshot(snapshot: dict, path: Path) -> Path:
 
 def summarize(snapshot: dict) -> str:
     lines = [
-        f"snapshot {snapshot['generated_at']} · {snapshot['watchlist_size']} watchlisted · "
+        f"snapshot {snapshot.get('generated_at', '?')} · "
+        f"{snapshot.get('watchlist_size', 0)} watchlisted · "
         f"{snapshot.get('dispatch_size', 0)} on demand · "
-        f"credentials: {', '.join(snapshot['credentials_present']) or 'none'} · "
-        f"proxy: {'yes' if snapshot['proxy'] else 'no'}"
+        f"credentials: {', '.join(snapshot.get('credentials_present') or []) or 'none'} · "
+        f"proxy: {'yes' if snapshot.get('proxy') else 'no'}"
     ]
-    for number, entry in snapshot["entries"].items():
+    for number, entry in (snapshot.get("entries") or {}).items():
+        if not isinstance(entry, dict):
+            continue
         tally: dict[str, int] = {}
-        for r in entry["results"]:
+        for r in entry.get("results") or []:
             tally[r["status"]] = tally.get(r["status"], 0) + 1
         compact = " ".join(f"{k}={v}" for k, v in sorted(tally.items()))
         tag = " (Run workflow)" if entry.get("source") == "dispatch" else ""
-        lines.append(f"  {number:16} conclusive={entry['conclusive']:<2} {compact}{tag}")
-        for domain in entry["found"]:
+        lines.append(f"  {number:16} conclusive={entry.get('conclusive', 0):<2} {compact}{tag}")
+        for domain in entry.get("found") or []:
             lines.append(f"      found: {domain}")
-    for bad in snapshot["skipped_lines"]:
+    for bad in snapshot.get("skipped_lines") or []:
         lines.append(f"  skipped line: {bad}")
     return "\n".join(lines)
 
@@ -224,9 +252,27 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--keep-dispatch", type=int, default=DEFAULT_KEEP_DISPATCH,
                         help="how many earlier on-demand numbers to carry over")
     parser.add_argument("--out", default="numtrail/web/static/snapshots.json")
+    parser.add_argument("--merge", action="store_true",
+                        help="rebuild --out from --fresh after a rejected push, "
+                             "carrying over the numbers in --remote")
+    parser.add_argument("--fresh", default=None, help="this run's own results")
+    parser.add_argument("--remote", default=None, help="the other run's committed file")
     parser.add_argument("--modules", default=None, help="comma separated subset")
     parser.add_argument("--timeout", type=float, default=20.0)
     args = parser.parse_args(list(argv) if argv is not None else None)
+
+    if args.merge:
+        if not args.fresh:
+            print("--merge needs --fresh")
+            return 2
+        merged = reconcile(Path(args.fresh),
+                           Path(args.remote) if args.remote else Path(args.out),
+                           watchlist_path=Path(args.watchlist),
+                           keep_dispatch=args.keep_dispatch)
+        path = write_snapshot(merged, Path(args.out))
+        print(summarize(merged))
+        print(f"\nre-merged into {path}")
+        return 0
 
     watchlist_path = Path(args.watchlist)
     watch_numbers: list[str] = []

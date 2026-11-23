@@ -93,6 +93,8 @@ jobs:
           fi
           python -m numtrail.snapshot --watchlist watchlist.txt \
             --out numtrail/web/static/snapshots.json "${ARGS[@]}"
+          # kept outside the work tree: used to re-merge if the push is rejected
+          cp numtrail/web/static/snapshots.json "$RUNNER_TEMP/fresh-snapshot.json"
 
       - name: Commit if anything changed
         env:
@@ -100,28 +102,51 @@ jobs:
         run: |
           git config user.name  "numtrail snapshot bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if [ -n "$INPUT_NUMBER" ]; then
+            MSG="snapshot: probe $INPUT_NUMBER (Run workflow)"
+          else
+            MSG="snapshot: $(date -u +'%Y-%m-%dT%H:%M:%SZ') watchlist probe results"
+          fi
+
           git add numtrail/web/static/snapshots.json numtrail/web/static/catalog.json
           if git diff --cached --quiet; then
             echo "no change to commit"
             exit 0
           fi
-          if [ -n "$INPUT_NUMBER" ]; then
-            git commit -m "snapshot: probe $INPUT_NUMBER (Run workflow)"
-          else
-            git commit -m "snapshot: $(date -u +'%Y-%m-%dT%H:%M:%SZ') watchlist probe results"
-          fi
-          # Another run can push between our checkout and our push (a push to
-          # watchlist.txt or the probes fires this workflow too), so rebase and
-          # retry instead of failing the job.
+          git commit -q -m "$MSG"
+
+          # A push to watchlist.txt, the probes, or a second Run-workflow click can
+          # fire this workflow at the same time; the slower push is rejected.
+          # snapshots.json is generated, so never hand-merge it: rebuild it on top
+          # of whatever landed first (keeping both runs' numbers), reparent our
+          # commit onto origin/main, and push again.
           for attempt in 1 2 3; do
-            if git pull --rebase --autostash origin main && git push; then
+            if git push -q; then
               echo "pushed on attempt $attempt"
-              break
+              exit 0
             fi
-            echo "push attempt $attempt failed; retrying"
+            echo "::warning::push rejected — another run committed first; re-merging"
+            git fetch -q origin main
+            if git show origin/main:numtrail/web/static/snapshots.json \
+                 > "$RUNNER_TEMP/remote-snapshot.json" 2>/dev/null; then
+              python -m numtrail.snapshot --merge \
+                --fresh  "$RUNNER_TEMP/fresh-snapshot.json" \
+                --remote "$RUNNER_TEMP/remote-snapshot.json" \
+                --watchlist watchlist.txt \
+                --out numtrail/web/static/snapshots.json
+            fi
+            git add numtrail/web/static/snapshots.json numtrail/web/static/catalog.json
+            git reset -q --soft origin/main
+            if git diff --cached --quiet; then
+              echo "nothing left to commit after merging — the other run already has it"
+              exit 0
+            fi
+            git commit -q -m "$MSG"
             sleep 5
-            [ "$attempt" = 3 ] && exit 1
           done
+          echo "::error::could not push the snapshot after 3 attempts"
+          exit 1
 
       # Commits pushed with GITHUB_TOKEN do not trigger other workflows (that is
       # GitHub's anti-recursion rule), so the Pages build has to be dispatched
@@ -143,35 +168,34 @@ jobs:
           import json, os, pathlib
           p = pathlib.Path("numtrail/web/static/snapshots.json")
           site = "https://akramsakib.github.io/numtrail/"
-          if not p.is_file():
-              print("_no snapshot written — the probe step failed before it could_")
-          else:
+          try:
               d = json.loads(p.read_text())
+          except (OSError, ValueError) as exc:
+              print(f"_no usable snapshot: {exc}_")
+              raise SystemExit(0)
               asked = (os.environ.get("INPUT_NUMBER") or "").strip()
               print(f"generated `{d['generated_at']}` · "
                     f"{d['watchlist_size']} watchlisted · "
                     f"{d.get('dispatch_size', 0)} on demand · "
-                    f"credentials: {', '.join(d['credentials_present']) or 'none'} · "
-                    f"proxy: {'yes' if d['proxy'] else 'no'}")
+                    f"credentials: {', '.join(d.get('credentials_present') or []) or 'none'} · "
+                    f"proxy: {'yes' if d.get('proxy') else 'no'}")
               print()
               print("| number | source | conclusive | statuses |")
               print("| --- | --- | --- | --- |")
-              for n, e in d["entries"].items():
+              for n, e in (d.get("entries") or {}).items():
                   tally = {}
                   for r in e["results"]:
                       tally[r["status"]] = tally.get(r["status"], 0) + 1
                   print(f"| `{n}` | {e.get('source', 'watchlist')} | {e['conclusive']} | "
                         f"{', '.join(f'{k}={v}' for k, v in sorted(tally.items()))} |")
-              for n, e in d["entries"].items():
+              for n, e in (d.get("entries") or {}).items():
                   if e.get("source") != "dispatch":
                       continue
                   print()
                   print(f"#### `{n}` — {e.get('pretty') or n}")
-                  asked_this = bool(asked) and (e["iso"].lower() in asked.lower()
-                                                or n.endswith("".join(c for c in asked if c.isdigit())[-9:]))
-                  if asked_this:
+                  if asked:
                       print()
-                      print(f"**[open this number on the site]({site}#%s)**" % n.replace("+", "%2B"))
+                      print(f"**[open this number on the site]({site}#{n.replace('+', '%2B')})**")
                   for r in e["results"]:
                       flag = "**found**" if r["found"] else r["status"]
                       print(f"- `{r['module']}` — {flag}"

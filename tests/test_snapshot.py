@@ -199,3 +199,59 @@ def test_main_without_watchlist_or_number_is_an_error(tmp_path):
                       "--out", str(tmp_path / "s.json")]) == 2
     assert snap.main(["--watchlist", str(tmp_path / "nope.txt"),
                       "--skip-watchlist", "--out", str(tmp_path / "s.json")]) == 2
+
+
+def test_reconcile_keeps_both_runs_numbers(tmp_path, fake_engine):
+    """Two runs probed at once; the slower push must not drop either number."""
+    fresh_path = tmp_path / "fresh.json"
+    remote_path = tmp_path / "remote.json"
+    watch = tmp_path / "watchlist.txt"
+    watch.write_text("+60123456789\n", encoding="utf-8")
+
+    fresh = asyncio.run(snap.build_snapshot(["+60123456789", "+60177001122"],
+                                            source="watchlist"))
+    fresh["entries"]["+60177001122"]["source"] = "dispatch"
+    fresh_path.write_text(json.dumps(fresh), encoding="utf-8")
+
+    other = asyncio.run(snap.build_snapshot(["+60123456789", "+60199990000"],
+                                           source="watchlist"))
+    other["entries"]["+60199990000"]["source"] = "dispatch"
+    remote_path.write_text(json.dumps(other), encoding="utf-8")
+
+    merged = snap.reconcile(fresh_path, remote_path, watchlist_path=watch)
+    assert set(merged["entries"]) == {"+60123456789", "+60177001122", "+60199990000"}
+    assert merged["watchlist_size"] == 1 and merged["dispatch_size"] == 2
+
+
+def test_reconcile_survives_a_missing_remote_file(tmp_path, fake_engine):
+    fresh_path = tmp_path / "fresh.json"
+    fresh_path.write_text(json.dumps(asyncio.run(snap.build_snapshot(["+60123456789"]))),
+                          encoding="utf-8")
+    merged = snap.reconcile(fresh_path, tmp_path / "gone.json")
+    assert list(merged["entries"]) == ["+60123456789"]
+
+
+def test_cli_merge_mode_rewrites_the_file(tmp_path, fake_engine):
+    fresh = tmp_path / "fresh.json"
+    fresh.write_text(json.dumps(asyncio.run(snap.build_snapshot(["+60123456789"]))),
+                     encoding="utf-8")
+    remote = tmp_path / "remote.json"
+    other = asyncio.run(snap.build_snapshot(["+15550100"]))
+    other["entries"]["+15550100"]["source"] = "dispatch"
+    remote.write_text(json.dumps(other), encoding="utf-8")
+    out = tmp_path / "out.json"
+
+    assert snap.main(["--merge", "--fresh", str(fresh), "--remote", str(remote),
+                      "--watchlist", str(tmp_path / "none.txt"), "--out", str(out)]) == 0
+    data = json.loads(out.read_text())
+    assert set(data["entries"]) == {"+60123456789", "+15550100"}
+    assert snap.main(["--merge", "--out", str(out)]) == 2      # --fresh is required
+
+
+def test_summarize_tolerates_a_hand_edited_file():
+    text = snap.summarize({"generated_at": "T", "entries": {
+        "+60": {"probed_at": "T", "conclusive": 1, "results": [{"status": "found"}]},
+        "+61": 7,
+    }})
+    assert "no snapshot" not in text
+    assert "+60" in text

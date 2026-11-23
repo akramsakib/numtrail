@@ -83,3 +83,25 @@ def test_summary_step_survives_a_failed_probe():
     steps = _snapshot_workflow()["jobs"]["snapshot"]["steps"]
     summary = next(s for s in steps if s.get("name") == "Job summary")
     assert summary["if"] == "always()"
+
+
+def test_push_conflict_is_remerged_not_hand_merged():
+    """A generated file must never be resolved by hand at 3am.
+
+    Two runs overlapping is normal (a push to the probes plus a Run-workflow
+    click). The commit step has to rebuild snapshots.json rather than leave a
+    conflict — the earlier version aborted the rebase and failed every retry.
+    """
+    steps = _snapshot_workflow()["jobs"]["snapshot"]["steps"]
+    commit = next(s for s in steps if s.get("name") == "Commit if anything changed")
+    body = commit["run"]
+    assert "--merge" in body, "push rejection must re-merge snapshots.json"
+    assert "--fresh" in body and "--remote" in body
+    assert "reset -q --soft origin/main" in body, "the commit must be reparented"
+    assert "git pull --rebase" not in body, "a rebase here conflicts on a generated file"
+
+
+def test_probe_step_keeps_a_copy_for_the_merge():
+    steps = _snapshot_workflow()["jobs"]["snapshot"]["steps"]
+    probe = next(s for s in steps if s.get("name") == "Probe")
+    assert "fresh-snapshot.json" in probe["run"]
