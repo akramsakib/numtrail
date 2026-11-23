@@ -17,6 +17,11 @@
     search: $("search"), export: $("export"), siteCount: $("site-count"),
     autoCount: $("auto-count"),
     repoLink: $("repo-link"),
+    modePhone: $("mode-phone"), modeUsername: $("mode-username"),
+    userField: $("user-field"), username: $("username"),
+    userResults: $("user-results"), userTitle: $("user-title"),
+    userSub: $("user-sub"), userFilters: $("user-filters"),
+    userList: $("user-list"), userSearch: $("user-search"),
   };
 
   const state = {
@@ -24,6 +29,9 @@
     search: "", running: false, lastPhone: "", elapsed: 0, automatedCount: 0,
     backend: true, snapshots: null,
     automated: 0, settled: 0,
+    // username side: the committed run plus whatever is on screen
+    mode: "phone", usernames: null, userResults: [], userFilter: "any",
+    userSearch: "", userShown: "",
   };
 
   if (cfg.repoUrl) el.repoLink.href = cfg.repoUrl;
@@ -308,6 +316,184 @@
     }
   }
 
+  /* ------------------------------------------------------- username checks
+   * Two sources, in this order:
+   *   1. a live POST /api/username when a backend is attached (numtrail-web);
+   *   2. the last committed usernames.json, written by the `username` workflow.
+   * On GitHub Pages only (2) exists, so the page says which one answered.
+   * No fabrication: an unknown username with no backend gets instructions, not rows.
+   */
+  const USER_STATUS_LABEL = {
+    found: "found", not_found: "not found", blocked: "blocked",
+    rate_limited: "rate limited", error: "no answer", skipped: "skipped",
+  };
+  const ACTIONS_URL = "https://github.com/akramsakib/numtrail/actions/workflows/username.yml";
+
+  function normUser(raw) {
+    return String(raw).trim().replace(/^@+/, "");
+  }
+
+  function committedUser() {
+    return state.usernames && state.usernames.username ? state.usernames.username : null;
+  }
+
+  function renderUsers(username, results, sourceLine) {
+    state.userShown = username;
+    state.userResults = results;
+    el.userResults.hidden = false;
+    el.grid.hidden = true;
+
+    const tally = {};
+    for (const r of results) tally[r.status] = (tally[r.status] || 0) + 1;
+    const found = tally.found || 0;
+    const conclusive = found + (tally.not_found || 0);
+    const silent = results.length - conclusive;
+
+    el.userTitle.textContent = `@${username}`;
+    el.userSub.textContent =
+      `${results.length} sites checked · ${found} found · ${tally.not_found || 0} not found · ` +
+      `${silent} gave no answer · ${sourceLine}`;
+
+    for (const status of ["any", "found", "not_found", "blocked", "rate_limited", "error"]) {
+      const node = document.getElementById("u-" + status);
+      if (node) node.textContent = status === "any" ? results.length : (tally[status] || 0);
+    }
+    paintUsers();
+  }
+
+  function paintUsers() {
+    const needle = state.userSearch.trim().toLowerCase();
+    const rows = state.userResults.filter((r) => {
+      if (state.userFilter !== "any" && r.status !== state.userFilter) return false;
+      if (!needle) return true;
+      return (r.site + " " + r.domain).toLowerCase().includes(needle);
+    });
+
+    // Maigret runs can be 3,000+ rows; rendering them all makes the page crawl.
+    const CAP = 300;
+    const shown = rows.slice(0, CAP);
+    const frag = document.createDocumentFragment();
+    for (const r of shown) {
+      const li = document.createElement("li");
+      li.className = "user-row";
+      li.dataset.ustatus = r.status;
+      const site = document.createElement("span");
+      site.className = "u-site";
+      site.textContent = r.site;
+      const domain = document.createElement("span");
+      domain.className = "u-domain";
+      domain.textContent = r.domain;
+      const status = document.createElement("span");
+      status.className = "u-status";
+      status.textContent = USER_STATUS_LABEL[r.status] || r.status;
+      const detail = document.createElement("span");
+      detail.className = "u-detail";
+      detail.textContent = r.detail || "";
+      li.append(site, domain, status, detail);
+      if (r.url && state.userFilter !== "error") {
+        const link = document.createElement("a");
+        link.className = "u-link";
+        link.href = r.url;
+        link.target = "_blank";
+        link.rel = "noreferrer noopener";
+        link.textContent = "open ↗";
+        li.appendChild(link);
+      }
+      frag.appendChild(li);
+    }
+    el.userList.replaceChildren(frag);
+    if (rows.length > CAP) {
+      const more = document.createElement("li");
+      more.className = "user-row empty";
+      more.textContent = `showing the first ${CAP} of ${rows.length} — narrow it with the filter box`;
+      el.userList.appendChild(more);
+    }
+    if (!rows.length) {
+      const empty = document.createElement("li");
+      empty.className = "user-row empty";
+      empty.textContent = "nothing matches that filter";
+      el.userList.replaceChildren(empty);
+    }
+  }
+
+  async function showCommitted(username, { silent = false } = {}) {
+    const data = state.usernames;
+    if (!data) {
+      setNotice(
+        "no usernames.json next to this page — nothing has been probed for any username yet. " +
+        "Run the username workflow in the repo, then reload.", "err");
+      return false;
+    }
+    if (normUser(data.username) !== username) {
+      setNotice(
+        `the committed run is @${data.username} (${data.checked} sites, ` +
+        `${relTime(data.generated_at)}). Run the username workflow with @${username} to check that one — ` +
+        `a static page cannot probe by itself.`, "err");
+      if (!silent) renderUsers(data.username, data.results,
+        `from the committed run, ${relTime(data.generated_at)}`);
+      return false;
+    }
+    renderUsers(data.username, data.results,
+      `committed by the username workflow, ${relTime(data.generated_at)}` +
+      (data.database ? ` · ${data.database} definitions` : ""));
+    setNotice(`@${data.username} — ${data.checked} sites from the committed run`);
+    return true;
+  }
+
+  async function runUserCheck(username) {
+    if (state.running) return;
+    state.running = true;
+    el.run.disabled = true;
+    setNotice(`checking @${username}…`);
+    try {
+      const res = await fetch(apiBase + "api/username", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ username, database: "sherlock", limit: 120 }),
+      });
+      if (!res.ok) throw new Error(`backend answered ${res.status}`);
+      const data = await res.json();
+      renderUsers(username, data.results, `live from ${apiBase || "this origin"}`);
+      setNotice(`@${username} — ${data.checked} sites checked live`);
+    } catch (err) {
+      await showCommitted(username);
+    } finally {
+      state.running = false;
+      el.run.disabled = false;
+    }
+  }
+
+  function setMode(mode) {
+    state.mode = mode;
+    const isUser = mode === "username";
+    el.modePhone.classList.toggle("active", !isUser);
+    el.modeUsername.classList.toggle("active", isUser);
+    el.modePhone.setAttribute("aria-selected", String(!isUser));
+    el.modeUsername.setAttribute("aria-selected", String(isUser));
+    el.phone.closest(".field").hidden = isUser;
+    el.userField.hidden = !isUser;
+    el.userResults.hidden = !isUser || !state.userResults.length;
+    el.grid.hidden = isUser;
+    el.statusFilters.parentElement.hidden = isUser;
+    const setup = document.getElementById("setup");
+    if (setup && isUser) setup.hidden = true;
+    el.categoryFilters.hidden = isUser;
+    el.search.hidden = isUser;
+    el.userFilters.hidden = !isUser;
+    el.userSearch.hidden = !isUser;
+
+    if (isUser) {
+      const committed = committedUser();
+      if (committed) showCommitted(committed, { silent: true });
+      else setNotice("username mode — run the username workflow in the repo first; " +
+                     "a static page has no way to probe on demand.", "err");
+    } else {
+      setNotice(state.lastPhone
+        ? `phone mode — last checked ${state.lastPhone}`
+        : "phone mode — enter a number with its dial code");
+    }
+  }
+
   /* -------------------------------------------------------------------- run */
   async function runCheck(phone) {
     if (state.running) return;
@@ -517,9 +703,31 @@
   /* --------------------------------------------------------------- listeners */
   el.form.addEventListener("submit", (e) => {
     e.preventDefault();
+    if (state.mode === "username") {
+      const username = normUser(el.username.value);
+      if (!username) return;
+      runUserCheck(username);
+      return;
+    }
     const phone = digitsOf(el.phone.value).trim();
     if (!phone) return;
     runCheck(phone.startsWith("+") ? phone : "+" + phone.replace(/^\+/, ""));
+  });
+
+  el.modePhone.addEventListener("click", () => setMode("phone"));
+  el.modeUsername.addEventListener("click", () => setMode("username"));
+
+  el.userFilters.addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    for (const c of el.userFilters.children) c.classList.toggle("active", c === chip);
+    state.userFilter = chip.dataset.ustatus || "any";
+    paintUsers();
+  });
+
+  el.userSearch.addEventListener("input", () => {
+    state.userSearch = el.userSearch.value;
+    paintUsers();
   });
 
   el.statusFilters.addEventListener("click", (e) => {
@@ -544,6 +752,7 @@
   });
 
   el.export.addEventListener("click", () => {
+    if (state.mode === "username") return exportUsers();
     const payload = {
       phone: state.lastPhone,
       elapsed: state.elapsed,
@@ -560,6 +769,21 @@
     a.click();
     URL.revokeObjectURL(a.href);
   });
+
+  function exportUsers() {
+    if (!state.userResults.length) return;
+    const payload = {
+      username: state.userShown,
+      generated_at: state.usernames ? state.usernames.generated_at : null,
+      results: state.userResults,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `numtrail-${state.userShown || "usernames"}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "/" && document.activeElement !== el.phone && document.activeElement !== el.search) {
@@ -581,7 +805,17 @@
     }
 
     const fromHash = decodeURIComponent(location.hash.replace(/^#/, ""));
-    if (fromHash) el.phone.value = fromHash;
+    const hashUser = fromHash.startsWith("@") ? normUser(fromHash) : "";
+    if (fromHash && !hashUser) el.phone.value = fromHash;
+    if (hashUser) el.username.value = hashUser;
+
+    // The username half: whatever the `username` workflow last committed.
+    try {
+      const res = await fetch("usernames.json", { cache: "no-store" });
+      if (res.ok) state.usernames = await res.json();
+    } catch (err) {
+      state.usernames = null;
+    }
 
     renderCatalog();
     const manual = state.catalog.length - state.automatedCount;
@@ -613,6 +847,12 @@
       return;
     }
 
+    if (hashUser) {
+      if (fromHash) el.phone.value = "";
+      setMode("username");
+      runUserCheck(hashUser);
+      return;
+    }
     if (fromHash) runCheck(fromHash);
   })();
 })();

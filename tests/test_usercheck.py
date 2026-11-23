@@ -203,3 +203,26 @@ def test_post_payloads_that_are_objects_do_not_explode():
     s = site(method="POST", payload={"username": "{}", "remember": True})
     assert run(s, handler).status is Status.FOUND
     assert bodies[0] == '{"username": "akram", "remember": true}'
+
+
+def test_cli_writes_a_json_the_page_can_read(tmp_path, monkeypatch, capsys):
+    """usernames.json is what the Pages site renders, so its shape is a contract."""
+    import json
+
+    async def fake_check_username(username, sites, *, limit=None, **kw):
+        return [runner.UserResult("GitHub", "github.com", Status.FOUND, "HTTP 200",
+                                  "https://github.com/" + username, 0.01, "sherlock"),
+                runner.UserResult("Reddit", "reddit.com", Status.BLOCKED, "HTTP 403",
+                                  "https://reddit.com/" + username, 0.01, "sherlock")]
+
+    monkeypatch.setattr(runner, "check_username", fake_check_username)
+    out = tmp_path / "usernames.json"
+    from numtrail.usercheck.__main__ import main as cli
+
+    assert cli(["akram", "--db", "sherlock", "--json", str(out)]) == 0
+    data = json.loads(out.read_text())
+    assert set(data) >= {"username", "database", "generated_at", "checked",
+                         "conclusive", "results"}
+    assert data["username"] == "akram" and data["checked"] == 2
+    assert data["generated_at"].endswith("Z")
+    assert {r["status"] for r in data["results"]} == {"found", "blocked"}

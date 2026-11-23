@@ -112,3 +112,58 @@ def test_automated_modules_are_derived_from_the_catalogue():
     modules = web.automated_modules()
     assert modules and "instagram" in modules
     assert len(modules) == len(set(modules))
+
+
+# ------------------------------------------------------------------ usernames
+def test_username_endpoint_runs_the_definitions(monkeypatch):
+    from numtrail.models import Status as S
+    from numtrail.usercheck import runner as userrunner
+    from numtrail.usercheck.db import SiteDef
+
+    async def fake_check_username(username, sites, *, limit=None, **kw):
+        assert username == "akram"
+        return [
+            userrunner.UserResult("GitHub", "github.com", S.FOUND, "HTTP 200",
+                                  "https://github.com/akram", 0.1, "sherlock"),
+            userrunner.UserResult("Reddit", "reddit.com", S.BLOCKED, "HTTP 403",
+                                  "https://reddit.com/akram", 0.1, "sherlock"),
+        ]
+
+    monkeypatch.setattr(userrunner, "check_username", fake_check_username)
+    monkeypatch.setattr(web, "RATE_LIMIT", 100)
+
+    httpd = web.ThreadingHTTPServer(("127.0.0.1", 0), web.Handler)
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    try:
+        base = f"http://127.0.0.1:{httpd.server_address[1]}"
+        req = urllib.request.Request(base + "/api/username", method="POST",
+                                     data=json.dumps({"username": "@akram"}).encode(),
+                                     headers={"content-type": "application/json"})
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            data = json.loads(resp.read())
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+        thread.join(timeout=5)
+
+    assert data["username"] == "akram"          # the @ is stripped
+    assert data["checked"] == 2 and data["conclusive"] == 1
+    assert [r["site"] for r in data["results"]] == ["GitHub", "Reddit"]
+    assert data["results"][1]["status"] == "blocked"
+    assert data["generated_at"].endswith("Z")
+
+
+def test_username_endpoint_rejects_a_bad_request(live_server):
+    def post(payload):
+        req = urllib.request.Request(live_server + "/api/username", method="POST",
+                                     data=json.dumps(payload).encode(),
+                                     headers={"content-type": "application/json"})
+        try:
+            urllib.request.urlopen(req, timeout=10)
+            return 200, {}
+        except urllib.error.HTTPError as exc:
+            return exc.code, json.loads(exc.read() or b"{}")
+
+    assert post({"username": ""})[0] == 400
+    assert post({"username": "akram", "database": "igornant"})[0] == 400

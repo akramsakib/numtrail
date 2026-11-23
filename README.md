@@ -237,6 +237,27 @@ numtrail is GPL-3.0. The ported work keeps its upstream licence and commit:
 The vendored JSON files carry their upstream commit and licence inside the file;
 `numtrail-user --list` prints them.
 
+## On the site
+
+The Pages build has two modes, switched by the chips at the top of the console:
+
+* **phone number** — the offline Malaysian probe plus whatever the `snapshot`
+  workflow committed for that number;
+* **username** — the results the `username` workflow committed to
+  `usernames.json`, filterable by status (found / not found / blocked / limited /
+  no answer) and searchable by site.
+
+`https://akramsakib.github.io/numtrail/#@torvalds` opens username mode directly.
+
+Two sources, in this order, and the page says which one answered:
+
+1. a **live** `POST /api/username` when a backend is attached (`numtrail-web`,
+   Docker, Render — all of which serve the UI and API from one origin);
+2. the **committed** `usernames.json` on GitHub Pages, which cannot probe.
+
+Ask for a username with no committed run on Pages and the page says exactly that
+— with the Actions link to run it — instead of showing the other username's rows.
+
 ## The three cloned backends
 
 numtrail's probes are ports, not lookalikes. Each one keeps the upstream request

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>numtrail — where is this number registered?</title>
-<meta name="description" content="Check which of 150+ services a phone number is registered on. Self-hosted OSINT tool.">
+<title>numtrail — phone numbers and usernames, traced</title>
+<meta name="description" content="Check which services a phone number is registered on, and where a username exists — 161 catalogued sites, 478 Sherlock and 3,268 Maigret definitions.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230b0f14'/><circle cx='16' cy='16' r='4' fill='%2338e07f'/><circle cx='16' cy='16' r='10' fill='none' stroke='%2338e07f' stroke-width='1.2' opacity='.45'/></svg>">
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -28,6 +28,11 @@
 
 <main>
   <section class="console" aria-label="Run a check">
+    <div class="chips modes" id="mode-switch" role="tablist" aria-label="What to look up">
+      <button class="chip active" id="mode-phone" role="tab" aria-selected="true">phone number</button>
+      <button class="chip" id="mode-username" role="tab" aria-selected="false">username</button>
+    </div>
+
     <form id="check-form" autocomplete="off">
       <label class="field">
         <span>phone number, dial code included</span>
@@ -57,6 +62,11 @@
         <option value="+55">Brazil</option>
         <option value="+27">South Africa</option>
       </datalist>
+      <label class="field" id="user-field" hidden>
+        <span>username, no @</span>
+        <input id="username" type="text" inputmode="text" spellcheck="false"
+               placeholder="torvalds" aria-describedby="user-hint">
+      </label>
       <button type="submit" id="run">
         <span class="label">trace</span>
         <kbd>↵</kbd>
@@ -112,6 +122,25 @@
       Step-by-step, including the two worker variables and the rate-limit settings:
       <code>DEPLOY.md</code> in the repo root.
     </p>
+  </section>
+
+  <section class="users" id="user-results" hidden aria-live="polite">
+    <div class="users-head">
+      <p class="users-title" id="user-title"></p>
+      <p class="users-sub" id="user-sub"></p>
+    </div>
+    <div class="chips" id="user-filters" role="group" aria-label="Filter username results">
+      <button class="chip active" data-ustatus="any">everything <b id="u-any">0</b></button>
+      <button class="chip" data-ustatus="found">found <b id="u-found">0</b></button>
+      <button class="chip" data-ustatus="not_found">not found <b id="u-not_found">0</b></button>
+      <button class="chip" data-ustatus="blocked">blocked <b id="u-blocked">0</b></button>
+      <button class="chip" data-ustatus="rate_limited">limited <b id="u-rate_limited">0</b></button>
+      <button class="chip" data-ustatus="error">no answer <b id="u-error">0</b></button>
+    </div>
+    <div class="tools">
+      <input id="user-search" type="search" placeholder="filter sites…" aria-label="Filter username results by site">
+    </div>
+    <ol class="user-list" id="user-list"></ol>
   </section>
 
   <section class="grid" id="grid" aria-live="polite"></section>

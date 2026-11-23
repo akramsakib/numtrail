@@ -121,7 +121,10 @@ class Handler(SimpleHTTPRequestHandler):
         return super().do_GET()
 
     def do_POST(self) -> None:  # noqa: N802
-        if self.path.split("?")[0] != "/api/check":
+        path = self.path.split("?")[0]
+        if path == "/api/username":
+            return self.username_check()
+        if path != "/api/check":
             return self._json(404, {"error": "not found"})
 
         length = int(self.headers.get("Content-Length") or 0)
@@ -193,6 +196,60 @@ class Handler(SimpleHTTPRequestHandler):
             except (BrokenPipeError, ConnectionResetError):
                 pass
             _inflight.release()
+
+
+    # -------------------------------------------------------- username checks
+    def username_check(self) -> None:
+        """POST /api/username — run Sherlock/Maigret definitions server-side.
+
+        The static deploy has no way to do this (Pages cannot make requests), so
+        the page falls back to the committed usernames.json when this 404s.
+        """
+        from datetime import datetime, timezone
+
+        from ..usercheck import db as userdb
+        from ..usercheck import runner as userrunner
+
+        length = int(self.headers.get("Content-Length") or 0)
+        raw = self.rfile.read(length) if length else b"{}"
+        try:
+            payload = json.loads(raw or b"{}")
+        except ValueError:
+            return self._json(400, {"error": "body must be JSON"})
+
+        username = str(payload.get("username", "")).strip().lstrip("@")
+        database = str(payload.get("database", "sherlock"))
+        try:
+            limit = int(payload.get("limit") or 0) or None
+        except (TypeError, ValueError):
+            limit = None
+        if not username:
+            return self._json(400, {"error": "send {\"username\": \"akram\"}"})
+        if database not in userdb.databases():
+            return self._json(400, {"error": f"unknown database {database!r}"})
+
+        wait = rate_limited(self.client_address[0])
+        if wait is not None:
+            return self._json(429, {"error": f"rate limited, retry in {wait}s"})
+        if not _inflight.acquire(blocking=False):
+            return self._json(429, {"error": "busy, try again shortly"})
+
+        try:
+            sites = userdb.load(database)
+            results = asyncio.run(userrunner.check_username(
+                username, sites, limit=limit))
+        finally:
+            _inflight.release()
+
+        conclusive = sum(1 for r in results if r.status.conclusive)
+        self._json(200, {
+            "username": username,
+            "database": database,
+            "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "checked": len(results),
+            "conclusive": conclusive,
+            "results": [r.as_dict() for r in results],
+        })
 
 
 def main(argv: list[str] | None = None) -> int:

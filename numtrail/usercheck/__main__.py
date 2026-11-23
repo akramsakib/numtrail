@@ -12,6 +12,7 @@ import asyncio
 import collections
 import json
 import sys
+from datetime import datetime, timezone
 
 from ..models import Status
 from . import db, runner
@@ -80,6 +81,7 @@ def main(argv: list[str] | None = None) -> int:
         payload = {
             "username": args.username,
             "database": args.db,
+            "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "checked": len(results),
             "conclusive": conclusive,
             "results": [r.as_dict() for r in results],
