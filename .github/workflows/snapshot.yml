@@ -79,7 +79,18 @@ jobs:
             exit 0
           fi
           git commit -m "snapshot: $(date -u +'%Y-%m-%dT%H:%M:%SZ') watchlist probe results"
-          git push
+          # Another run can push between our checkout and our push (a push to
+          # watchlist.txt or the probes fires this workflow too), so rebase and
+          # retry instead of failing the job.
+          for attempt in 1 2 3; do
+            if git pull --rebase --autostash origin main && git push; then
+              echo "pushed on attempt $attempt"
+              break
+            fi
+            echo "push attempt $attempt failed; retrying"
+            sleep 5
+            [ "$attempt" = 3 ] && exit 1
+          done
 
       # Commits pushed with GITHUB_TOKEN do not trigger other workflows (that is
       # GitHub's anti-recursion rule), so the Pages build has to be dispatched
