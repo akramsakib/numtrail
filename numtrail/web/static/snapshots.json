@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-23T07:02:23Z",
+  "generated_at": "2026-11-23T07:10:00Z",
   "generator": "numtrail.snapshot",
   "watchlist_size": 4,
   "credentials_present": [],
@@ -8,7 +8,7 @@
     "+60123456789": {
       "iso": "MY",
       "pretty": "+60 123456789",
-      "probed_at": "2026-11-23T07:02:17Z",
+      "probed_at": "2026-11-23T07:09:55Z",
       "conclusive": 1,
       "found": [
         "mcmc.gov.my"
@@ -30,7 +30,7 @@
           "found": false,
           "detail": "inconclusive response (HTTP 200)",
           "semantic": "account_exists",
-          "elapsed": 0.548
+          "elapsed": 0.415
         },
         {
           "module": "bird",
@@ -48,7 +48,7 @@
           "found": false,
           "detail": "429 from the lookup endpoint; rotate IP with --proxy",
           "semantic": "account_exists",
-          "elapsed": 0.11
+          "elapsed": 0.081
         },
         {
           "module": "ipqualityscore",
@@ -111,7 +111,7 @@
           "found": false,
           "detail": "answered HTML instead of JSON: endpoint now needs a real session (set NUMTRAIL_SNAPCHAT_COOKIE)",
           "semantic": "account_exists",
-          "elapsed": 0.632
+          "elapsed": 0.268
         },
         {
           "module": "telesign",
@@ -163,7 +163,7 @@
     "+601112345678": {
       "iso": "MY",
       "pretty": "+60 1112345678",
-      "probed_at": "2026-11-23T07:02:19Z",
+      "probed_at": "2026-11-23T07:09:57Z",
       "conclusive": 1,
       "found": [
         "mcmc.gov.my"
@@ -185,7 +185,7 @@
           "found": false,
           "detail": "inconclusive response (HTTP 200)",
           "semantic": "account_exists",
-          "elapsed": 0.528
+          "elapsed": 0.419
         },
         {
           "module": "bird",
@@ -203,7 +203,7 @@
           "found": false,
           "detail": "429 from the lookup endpoint; rotate IP with --proxy",
           "semantic": "account_exists",
-          "elapsed": 0.108
+          "elapsed": 0.072
         },
         {
           "module": "ipqualityscore",
@@ -266,7 +266,7 @@
           "found": false,
           "detail": "answered HTML instead of JSON: endpoint now needs a real session (set NUMTRAIL_SNAPCHAT_COOKIE)",
           "semantic": "account_exists",
-          "elapsed": 0.408
+          "elapsed": 0.263
         },
         {
           "module": "telesign",
@@ -318,7 +318,7 @@
     "+60321123456": {
       "iso": "MY",
       "pretty": "+60 321123456",
-      "probed_at": "2026-11-23T07:02:21Z",
+      "probed_at": "2026-11-23T07:09:58Z",
       "conclusive": 1,
       "found": [
         "mcmc.gov.my"
@@ -340,7 +340,7 @@
           "found": false,
           "detail": "inconclusive response (HTTP 200)",
           "semantic": "account_exists",
-          "elapsed": 0.485
+          "elapsed": 0.471
         },
         {
           "module": "bird",
@@ -358,7 +358,7 @@
           "found": false,
           "detail": "429 from the lookup endpoint; rotate IP with --proxy",
           "semantic": "account_exists",
-          "elapsed": 0.081
+          "elapsed": 0.072
         },
         {
           "module": "ipqualityscore",
@@ -421,7 +421,7 @@
           "found": false,
           "detail": "answered HTML instead of JSON: endpoint now needs a real session (set NUMTRAIL_SNAPCHAT_COOKIE)",
           "semantic": "account_exists",
-          "elapsed": 0.424
+          "elapsed": 0.259
         },
         {
           "module": "telesign",
@@ -473,7 +473,7 @@
     "+15550100": {
       "iso": "US",
       "pretty": "+1 5550100",
-      "probed_at": "2026-11-23T07:02:23Z",
+      "probed_at": "2026-11-23T07:10:00Z",
       "conclusive": 0,
       "found": [],
       "results": [
@@ -493,7 +493,7 @@
           "found": false,
           "detail": "inconclusive response (HTTP 200)",
           "semantic": "account_exists",
-          "elapsed": 0.527
+          "elapsed": 0.417
         },
         {
           "module": "bird",
@@ -511,7 +511,7 @@
           "found": false,
           "detail": "429 from the lookup endpoint; rotate IP with --proxy",
           "semantic": "account_exists",
-          "elapsed": 0.111
+          "elapsed": 0.075
         },
         {
           "module": "ipqualityscore",
@@ -574,7 +574,7 @@
           "found": false,
           "detail": "answered HTML instead of JSON: endpoint now needs a real session (set NUMTRAIL_SNAPCHAT_COOKIE)",
           "semantic": "account_exists",
-          "elapsed": 0.484
+          "elapsed": 0.23
         },
         {
           "module": "telesign",
