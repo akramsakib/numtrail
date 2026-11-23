@@ -77,7 +77,6 @@ jobs:
           # Optional: a residential proxy makes the three web probes answer
           # instead of bot-walling a datacentre IP.
           PROXY_URL: ${{ secrets.PROXY_URL }}
-        env:
           # Set by the Run-workflow form. Empty on schedule/push runs, which
           # then behave exactly as before.
           INPUT_NUMBER: ${{ inputs.number }}
