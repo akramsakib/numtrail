@@ -171,9 +171,31 @@ watchlist.txt ──► .github/workflows/snapshot.yml ──► snapshots.json 
   (you edit)         (cron: every 6h)               (committed)        (reads it)
 ```
 
+### Run workflow is the query box
+
+**Actions → snapshot → Run workflow** opens a form with a text box. Type a number
+with its dial code and press the green button; the runner probes *that* number,
+commits the result, redeploys Pages, and prints the answer in the run's summary.
+Comma-separate for several, tick **skip watchlist** for a fast run.
+
+```
+number:  +60123456789          ← the form field
+         +60123456789, +601112345678
+skip watchlist: false          ← true probes only what you typed
+```
+
+That is deliberate: a page cannot trigger a workflow without a write-scoped
+token in client-side JS, so GitHub's own button is the safe query box. The site
+then serves whatever has been probed — the watchlist plus the last 40 numbers
+asked for by hand.
+
 ```bash
-# locally, same thing the workflow does
+# locally, exactly what the workflow does
 python -m numtrail.snapshot --watchlist watchlist.txt \
+    --out numtrail/web/static/snapshots.json
+
+# ...and what Run workflow does
+python -m numtrail.snapshot --number +60123456789 \
     --out numtrail/web/static/snapshots.json
 ```
 
@@ -188,8 +210,9 @@ offline numbering probe), 12 `needs_credentials`, 1 `blocked`, 1 `rate_limited`,
 and datacentre IPs get walled. The secrets above move those numbers; nothing here
 is simulated, so they are reported rather than dressed up.
 
-**The limit, stated plainly:** this serves the numbers in `watchlist.txt`, not
-arbitrary visitor input. Letting a web page trigger a workflow needs a token with
+**The limit, stated plainly:** the site serves only numbers that have been probed
+here — `watchlist.txt` plus the last 40 numbers submitted through Run workflow —
+not arbitrary visitor input. Letting a web page trigger a workflow needs a token with
 `workflow` scope in client-side JS — which would hand anyone write access to your
 repo. A watchlist is the only shape that is both serverless *and* safe, and it
 keeps the site a viewer rather than an open enumeration service.

@@ -99,3 +99,103 @@ def test_committed_snapshot_is_valid_json():
     for number, entry in data["entries"].items():
         assert number.startswith("+")
         assert isinstance(entry["results"], list)
+
+
+# ---------------------------------------------------------------- Run workflow
+# Clicking "Run workflow" in the Actions tab passes a number into --number; the
+# run must probe that number, keep the watchlist intact, and not lose the
+# on-demand numbers from previous runs.
+
+
+@pytest.mark.parametrize("raw, expected", [
+    ("+60123456789", ["+60123456789"]),
+    ("+60 12-345 6789", ["+60123456789"]),
+    ("+60123456789, +601112345678", ["+60123456789", "+601112345678"]),
+    ("+60123456789;+15550100", ["+60123456789", "+15550100"]),
+    ("60123456789", ["60123456789"]),
+    ("", []),
+    ("  ,  ", []),
+])
+def test_dispatch_input_is_scraped_into_numbers(raw, expected):
+    assert snap.parse_numbers(raw) == expected
+
+
+def test_merge_keeps_previous_on_demand_numbers(fake_engine, tmp_path):
+    watch = ["+60123456789"]
+    first = asyncio.run(snap.build_snapshot(watch + ["+60199998888"],
+                                            source="watchlist"))
+    # mark the second one as on-demand, the way the CLI does
+    first["entries"]["+60199998888"]["source"] = "dispatch"
+    first = snap.merge_snapshot(first, None, watchlist=watch)
+
+    second = asyncio.run(snap.build_snapshot(watch, source="watchlist"))
+    merged = snap.merge_snapshot(second, first, watchlist=watch)
+
+    assert set(merged["entries"]) == {"+60123456789", "+60199998888"}
+    assert merged["entries"]["+60199998888"]["source"] == "dispatch"
+    assert merged["watchlist_size"] == 1
+    assert merged["dispatch_size"] == 1
+
+
+def test_merge_drops_numbers_removed_from_the_watchlist(fake_engine):
+    old = asyncio.run(snap.build_snapshot(["+60123456789", "+15550100"],
+                                          source="watchlist"))
+    old_entry = old["entries"].pop("+60123456789")
+    old["entries"]["+15550100"]["source"] = "watchlist"
+
+    fresh = asyncio.run(snap.build_snapshot(["+60123456789"], source="watchlist"))
+    merged = snap.merge_snapshot(fresh, old, watchlist=["+60123456789"])
+    assert "+15550100" not in merged["entries"]
+    assert old_entry["source"] == "watchlist"
+
+
+def test_merge_caps_carried_over_numbers_newest_first(fake_engine):
+    stale = {"generated_at": "2026-01-01T00:00:00Z", "entries": {
+        f"+1555010{i}": {"iso": "US", "probed_at": f"2026-01-0{i + 1}T00:00:00Z",
+                         "source": "dispatch", "conclusive": 0, "found": [],
+                         "results": []}
+        for i in range(5)
+    }}
+    fresh = asyncio.run(snap.build_snapshot(["+60123456789"], source="watchlist"))
+    merged = snap.merge_snapshot(fresh, stale, watchlist=["+60123456789"],
+                                 keep_dispatch=2)
+    carried = [n for n, e in merged["entries"].items() if e.get("source") == "dispatch"]
+    assert len(carried) == 2
+    # newest probed_at wins
+    assert set(carried) == {"+15550103", "+15550104"}
+
+
+def test_main_probes_the_number_from_the_run_workflow_form(fake_engine, tmp_path,
+                                                           monkeypatch):
+    watch = tmp_path / "watchlist.txt"
+    watch.write_text("+60123456789\n", encoding="utf-8")
+    out = tmp_path / "snapshots.json"
+    monkeypatch.setenv("INPUT_NUMBER", "")
+
+    code = snap.main(["--watchlist", str(watch), "--out", str(out),
+                      "--number", "+60199998888"])
+    assert code == 0
+    data = json.loads(out.read_text())
+    assert data["entries"]["+60199998888"]["source"] == "dispatch"
+    assert data["entries"]["+60123456789"]["source"] == "watchlist"
+    assert fake_engine == ["+60123456789", "+60199998888"]
+
+
+def test_main_skip_watchlist_probes_only_the_requested_number(fake_engine, tmp_path):
+    watch = tmp_path / "watchlist.txt"
+    watch.write_text("+60123456789\n", encoding="utf-8")
+    out = tmp_path / "snapshots.json"
+
+    code = snap.main(["--watchlist", str(watch), "--out", str(out),
+                      "--skip-watchlist", "--number", "+60199998888"])
+    assert code == 0
+    data = json.loads(out.read_text())
+    assert list(data["entries"]) == ["+60199998888"]
+    assert fake_engine == ["+60199998888"]
+
+
+def test_main_without_watchlist_or_number_is_an_error(tmp_path):
+    assert snap.main(["--watchlist", str(tmp_path / "nope.txt"),
+                      "--out", str(tmp_path / "s.json")]) == 2
+    assert snap.main(["--watchlist", str(tmp_path / "nope.txt"),
+                      "--skip-watchlist", "--out", str(tmp_path / "s.json")]) == 2

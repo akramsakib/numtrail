@@ -90,16 +90,27 @@ The repo ships this already; you only edit one file.
    `NUMVERIFY_KEY` or `VERIPHONE_KEY` (free tiers) so the run records real
    carrier data. Add `PROXY_URL` (residential proxy) if you want the three
    bot-walled web probes to answer.
-3. **Actions → snapshot → Run workflow.** It probes, commits
-   `numtrail/web/static/snapshots.json`, and re-triggers the Pages deploy.
+3. **Actions → snapshot → Run workflow.** A form opens with a text box:
+
+   ```
+   number             +60123456789          ← type any number, with dial code
+                      +60123456789, +601112345678   (comma-separated)
+   skip watchlist     false                 ← tick to probe only what you typed
+   ```
+
+   Press the green **Run workflow** button. The runner probes that number,
+   commits `numtrail/web/static/snapshots.json`, re-triggers the Pages deploy,
+   and prints the answer in the run's own summary.
 
 The Pages site then shows timestamped results for those numbers with no server
-involved. Watch it on a schedule (`cron: 23 */6 * * *`), and the site is
-refreshed four times a day.
+involved. The schedule (`cron: 23 */6 * * *`) re-probes `watchlist.txt` four
+times a day, and on-demand numbers from Run workflow are carried over — the most
+recent 40, so the committed file stays small.
 
-Limit: watchlisted numbers only. A web form can't trigger a workflow without
-putting a `workflow`-scoped token in the browser, which would be handing out
-write access to your repo.
+Limit: the site serves numbers that have been probed here, not arbitrary visitor
+input. A web form can't trigger a workflow without putting a `workflow`-scoped
+token in the browser, which would be handing out write access to your repo — so
+GitHub's own Run workflow button is the query box.
 
 ## Route 3 — Pages only, no backend
 

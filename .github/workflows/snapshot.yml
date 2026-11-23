@@ -10,7 +10,20 @@ name: snapshot
 on:
   schedule:
     - cron: "23 */6 * * *"     # four times a day (UTC)
+  # Clicking "Run workflow" opens a form: type a number, get a probe, get the
+  # answer in this run's summary and on the site. That is the query box — the
+  # page itself can't trigger a workflow without leaking a write-scoped token.
   workflow_dispatch:
+    inputs:
+      number:
+        description: "Phone number with dial code, e.g. +60123456789 (comma-separate several; leave blank for the watchlist)"
+        required: false
+        type: string
+      skip_watchlist:
+        description: "Probe only the number above (faster; leaves the watchlist out of this run)"
+        required: false
+        default: false
+        type: boolean
   push:
     paths:                       # re-probe when the watchlist or the probes change
       - "watchlist.txt"
@@ -40,7 +53,7 @@ jobs:
       - name: Install
         run: python -m pip install --quiet -e .
 
-      - name: Probe the watchlist
+      - name: Probe
         env:
           # Add any of these as repository secrets to light up the keyed probes.
           # Settings → Secrets and variables → Actions → Secrets.
@@ -64,12 +77,27 @@ jobs:
           # Optional: a residential proxy makes the three web probes answer
           # instead of bot-walling a datacentre IP.
           PROXY_URL: ${{ secrets.PROXY_URL }}
+        env:
+          # Set by the Run-workflow form. Empty on schedule/push runs, which
+          # then behave exactly as before.
+          INPUT_NUMBER: ${{ inputs.number }}
+          INPUT_SKIP_WATCHLIST: ${{ inputs.skip_watchlist }}
         run: |
           python -m numtrail.catalog --write
+          ARGS=()
+          if [ -n "$INPUT_NUMBER" ]; then
+            ARGS+=(--number "$INPUT_NUMBER")
+            echo "on-demand number: $INPUT_NUMBER"
+          fi
+          if [ "$INPUT_SKIP_WATCHLIST" = "true" ]; then
+            ARGS+=(--skip-watchlist)
+          fi
           python -m numtrail.snapshot --watchlist watchlist.txt \
-            --out numtrail/web/static/snapshots.json
+            --out numtrail/web/static/snapshots.json "${ARGS[@]}"
 
       - name: Commit if anything changed
+        env:
+          INPUT_NUMBER: ${{ inputs.number }}
         run: |
           git config user.name  "numtrail snapshot bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -78,7 +106,11 @@ jobs:
             echo "no change to commit"
             exit 0
           fi
-          git commit -m "snapshot: $(date -u +'%Y-%m-%dT%H:%M:%SZ') watchlist probe results"
+          if [ -n "$INPUT_NUMBER" ]; then
+            git commit -m "snapshot: probe $INPUT_NUMBER (Run workflow)"
+          else
+            git commit -m "snapshot: $(date -u +'%Y-%m-%dT%H:%M:%SZ') watchlist probe results"
+          fi
           # Another run can push between our checkout and our push (a push to
           # watchlist.txt or the probes fires this workflow too), so rebase and
           # retry instead of failing the job.
@@ -102,26 +134,48 @@ jobs:
 
       - name: Job summary
         if: always()
+        env:
+          INPUT_NUMBER: ${{ inputs.number }}
         run: |
           {
             echo "### snapshot"
+            echo
             python - <<'PY'
-          import json, pathlib
+          import json, os, pathlib
           p = pathlib.Path("numtrail/web/static/snapshots.json")
+          site = "https://akramsakib.github.io/numtrail/"
           if not p.is_file():
-              print("_no snapshot written_")
+              print("_no snapshot written — the probe step failed before it could_")
           else:
               d = json.loads(p.read_text())
-              print(f"generated {d['generated_at']} · {d['watchlist_size']} numbers · "
-                    f"credentials: {', '.join(d['credentials_present']) or 'none'}")
+              asked = (os.environ.get("INPUT_NUMBER") or "").strip()
+              print(f"generated `{d['generated_at']}` · "
+                    f"{d['watchlist_size']} watchlisted · "
+                    f"{d.get('dispatch_size', 0)} on demand · "
+                    f"credentials: {', '.join(d['credentials_present']) or 'none'} · "
+                    f"proxy: {'yes' if d['proxy'] else 'no'}")
               print()
-              print("| number | conclusive | statuses |")
-              print("| --- | --- | --- |")
+              print("| number | source | conclusive | statuses |")
+              print("| --- | --- | --- | --- |")
               for n, e in d["entries"].items():
                   tally = {}
                   for r in e["results"]:
                       tally[r["status"]] = tally.get(r["status"], 0) + 1
-                  print(f"| `{n}` | {e['conclusive']} | "
+                  print(f"| `{n}` | {e.get('source', 'watchlist')} | {e['conclusive']} | "
                         f"{', '.join(f'{k}={v}' for k, v in sorted(tally.items()))} |")
+              for n, e in d["entries"].items():
+                  if e.get("source") != "dispatch":
+                      continue
+                  print()
+                  print(f"#### `{n}` — {e.get('pretty') or n}")
+                  asked_this = bool(asked) and (e["iso"].lower() in asked.lower()
+                                                or n.endswith("".join(c for c in asked if c.isdigit())[-9:]))
+                  if asked_this:
+                      print()
+                      print(f"**[open this number on the site]({site}#%s)**" % n.replace("+", "%2B"))
+                  for r in e["results"]:
+                      flag = "**found**" if r["found"] else r["status"]
+                      print(f"- `{r['module']}` — {flag}"
+                            + (f" — {r['detail']}" if r["detail"] else ""))
           PY
           } >> "$GITHUB_STEP_SUMMARY"

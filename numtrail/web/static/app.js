@@ -379,13 +379,14 @@
           ` · the offline probe answers live` +
           (keys > 0
             ? `. ${keys} need an API key: add NUMVERIFY_KEY or PROXY_URL as a repo secret and the runner will ask them itself`
-            : `. add a number to watchlist.txt to have it probed on a schedule`),
+            : `. add a number to watchlist.txt, or click Run workflow in the Actions tab`),
           ""
         );
       } else if (offline > 0) {
         setNotice(
-          `answered from the offline probe · this number is not in watchlist.txt, ` +
-          `so the networked probes have no committed results to show`, ""
+          `answered from the offline probe · the other 15 have no committed result for ` +
+          `this number yet — add it to watchlist.txt, or run the snapshot workflow ` +
+          `with it filled in`, ""
         );
       } else {
         setNotice("nothing could run: no backend, and the number is not in watchlist.txt", "err");
@@ -489,7 +490,8 @@
         lede.innerHTML =
           `Nobody is answering live: GitHub Pages serves files only, so it cannot make the ` +
           `outbound requests these checks need. Instead a scheduled workflow in this repo ` +
-          `probes <code>watchlist.txt</code> (${snapCount} number${snapCount === 1 ? "" : "s"}), ` +
+          `probes <code>watchlist.txt</code> and any number typed into Actions → snapshot → ` +
+          `Run workflow (${snapCount} number${snapCount === 1 ? "" : "s"} committed), ` +
           `commits <code>snapshots.json</code>, and this page reads it. ` +
           `The <strong>offline Malaysian numbering probe runs here, live</strong>, on any number. ` +
           `For live answers on every number, attach one of these:`;
