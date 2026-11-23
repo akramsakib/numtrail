@@ -179,6 +179,9 @@ main { max-width: 1400px; margin: 0 auto; padding: 12px clamp(16px, 4vw, 44px) 6
   overflow: hidden; margin-top: auto;
 }
 .card .detail:empty { display: none; }
+/* The offline probe is the one answer this page computes itself — never clamp it. */
+.card[data-local="1"] .detail { display: block; -webkit-line-clamp: none; overflow: visible; }
+.card[data-local="1"] { grid-column: span 2; }
 .card a.open {
   font: 500 10.5px/1 var(--mono); color: var(--faint); text-decoration: none;
   align-self: flex-start; border-bottom: 1px dotted currentColor;

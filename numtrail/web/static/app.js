@@ -261,6 +261,7 @@
     const card = el.grid.querySelector(`[data-site="${result.module}"]`);
     if (!card) return;
     card.classList.remove("pending");
+    if (result.local) card.dataset.local = "1";
     card.dataset.status = result.status;
     const label = card.querySelector(".status span");
     const detail = card.querySelector(".detail");

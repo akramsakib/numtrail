@@ -182,6 +182,12 @@ the scheduled run records real carrier results. Add `PROXY_URL` (a residential
 proxy) and the three bot-walled web probes start answering instead of returning
 `blocked` from a runner IP.
 
+A real run of this repo with no secrets, on `+60123456789`: **1 answered** (the
+offline numbering probe), 12 `needs_credentials`, 1 `blocked`, 1 `rate_limited`,
+1 `error`. That is the honest shape of a bare deploy — the runner holds no keys,
+and datacentre IPs get walled. The secrets above move those numbers; nothing here
+is simulated, so they are reported rather than dressed up.
+
 **The limit, stated plainly:** this serves the numbers in `watchlist.txt`, not
 arbitrary visitor input. Letting a web page trigger a workflow needs a token with
 `workflow` scope in client-side JS — which would hand anyone write access to your
