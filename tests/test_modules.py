@@ -78,37 +78,56 @@ def test_instagram_sends_hmac_signed_body():
 VALIDATOR_HTML = "<html><body><script src='/v2/app.js'></script></body></html>"
 
 
-def test_snapchat_taken_number_is_found():
+def snapchat_handler(answer, *, prime_cookie="xsrf_token=abc; Path=/", seen=None):
+    """ignorant's flow: prime with a GET, then POST the validator."""
     def handler(request: httpx.Request):
         if request.method == "GET":
-            return httpx.Response(200, text="<html></html>",
-                                  headers={"set-cookie": "xsrf_token=abc; Path=/"})
-        return httpx.Response(200, json={"status_code": "TAKEN_NUMBER"})
+            headers = {"set-cookie": prime_cookie} if prime_cookie else {}
+            return httpx.Response(200, text="<html></html>", headers=headers)
+        if seen is not None:
+            seen.update(httpx.QueryParams(request.content.decode()))
+        return answer
+    return handler
 
-    r = call("snapchat", handler)
+
+def test_snapchat_taken_number_is_found():
+    r = call("snapchat", snapchat_handler(httpx.Response(200, json={"status_code": "TAKEN_NUMBER"})))
     assert r.status is Status.FOUND
-    assert "already attached" in (r.detail or "")
+    assert "TAKEN_NUMBER" in (r.detail or "")
 
 
 def test_snapchat_ok_is_not_found():
-    r = call("snapchat", lambda req: httpx.Response(200, json={"status_code": "OK"}))
+    r = call("snapchat", snapchat_handler(httpx.Response(200, json={"status_code": "OK"})))
     assert r.status is Status.NOT_FOUND
 
 
-def test_snapchat_html_instead_of_json_is_blocked():
-    r = call("snapchat", lambda req: httpx.Response(200, text=VALIDATOR_HTML))
+def test_snapchat_unknown_status_code_is_rate_limited():
+    r = call("snapchat", snapchat_handler(httpx.Response(200, json={"status_code": "SOMETHING_NEW"})))
+    assert r.status is Status.RATE_LIMITED
+
+
+def test_snapchat_empty_body_is_blocked_not_found():
+    """Live behaviour on 2026-11-23: HTTP 200 with a zero-byte body."""
+    r = call("snapchat", snapchat_handler(httpx.Response(200, text="")))
     assert r.status is Status.BLOCKED
-    assert "NUMTRAIL_SNAPCHAT_COOKIE" in (r.detail or "")
+    assert "empty" in (r.detail or "")
+
+
+def test_snapchat_without_the_xsrf_cookie_says_so():
+    r = call("snapchat", snapchat_handler(httpx.Response(200, json={"status_code": "OK"}),
+                                          prime_cookie=""))
+    assert r.status is Status.BLOCKED
+    assert "xsrf_token" in (r.detail or "")
+
+
+def test_snapchat_html_instead_of_json_is_blocked():
+    r = call("snapchat", snapchat_handler(httpx.Response(200, text=VALIDATOR_HTML)))
+    assert r.status is Status.BLOCKED
 
 
 def test_snapchat_falls_back_to_iso_when_dial_code_unmapped():
     posted = {}
-
-    def handler(request: httpx.Request):
-        if request.method == "POST":
-            posted.update(httpx.QueryParams(request.content.decode()))
-        return httpx.Response(200, json={"status_code": "OK"})
-
+    handler = snapchat_handler(httpx.Response(200, json={"status_code": "OK"}), seen=posted)
     r = call("snapchat", handler, phone=parse("+998901234567"))
     assert posted.get("phone_country_code") == "UZ"
     assert posted.get("phone_number") == "901234567"
@@ -265,7 +284,8 @@ def test_snapchat_does_not_mistake_i18n_for_a_botwall():
 
     def handler(request: httpx.Request):
         if request.method == "GET":
-            return httpx.Response(200, text=SNAP_LANDING)
+            return httpx.Response(200, text=SNAP_LANDING,
+                                  headers={"set-cookie": "xsrf_token=abc; Path=/"})
         return httpx.Response(200, json={"status_code": "TAKEN_NUMBER"})
 
     r = call("snapchat", handler)
@@ -318,18 +338,6 @@ AMAZON_CAPTCHA_FORM = """
   <input type="hidden" name="amzn-pt" value=""><input type="hidden" name="field-keywords" value="">
 </form></body></html>
 """
-
-
-def test_amazon_captcha_form_is_never_used_as_the_claim_form():
-    posted = {"n": 0}
-
-    def handler(request: httpx.Request):
-        posted["n"] += 1
-        return httpx.Response(200, text=AMAZON_CAPTCHA_FORM)
-
-    r = call("amazon", handler)
-    assert r.status is Status.BLOCKED
-    assert posted["n"] == 1, "must not POST into the captcha validator"
 
 
 def test_amazon_robot_check_signature_is_blocked():

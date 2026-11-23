@@ -1,0 +1,134 @@
+name: username
+
+# The username half of the backend: Sherlock's and Maigret's definition
+# databases, run for real on GitHub's runners.
+#
+#   Actions → username → Run workflow → type a username → Run
+#
+# It writes numtrail/web/static/usernames.json and redeploys Pages, so the
+# result is a committed artifact you can diff, not a number on a screen.
+#
+# Phone numbers use snapshot.yml instead. "Does @akram exist on this site" and
+# "is +60123456789 registered" are different questions and are kept apart.
+
+on:
+  workflow_dispatch:
+    inputs:
+      username:
+        description: "Username to look for, e.g. akram (no @)"
+        required: true
+        type: string
+      database:
+        description: "Which definition database to run"
+        required: true
+        default: sherlock
+        type: choice
+        options:
+          - sherlock
+          - maigret
+      limit:
+        description: "How many sites to check (blank = all vendored)"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: username
+  cancel-in-progress: false
+
+jobs:
+  username:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: python -m pip install --quiet -e .
+
+      - name: Probe the username
+        env:
+          INPUT_USERNAME: ${{ inputs.username }}
+          INPUT_DATABASE: ${{ inputs.database }}
+          INPUT_LIMIT: ${{ inputs.limit }}
+          PROXY_URL: ${{ secrets.PROXY_URL }}
+        run: |
+          NAME="${INPUT_USERNAME#@}"
+          ARGS=()
+          if [ -n "$INPUT_LIMIT" ]; then ARGS+=(--limit "$INPUT_LIMIT"); fi
+          python -m numtrail.usercheck "$NAME" \
+            --db "$INPUT_DATABASE" \
+            --json numtrail/web/static/usernames.json \
+            "${ARGS[@]}"
+
+      - name: Commit if anything changed
+        env:
+          INPUT_USERNAME: ${{ inputs.username }}
+        run: |
+          git config user.name  "numtrail snapshot bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add numtrail/web/static/usernames.json
+          if git diff --cached --quiet; then
+            echo "no change to commit"
+            exit 0
+          fi
+          git commit -q -m "username: probe ${INPUT_USERNAME#@} (${{ inputs.database }})"
+          for attempt in 1 2 3; do
+            if git push -q; then
+              echo "pushed on attempt $attempt"
+              exit 0
+            fi
+            echo "::warning::push rejected — re-merging"
+            # one generated file, so take this run's version wholesale
+            git pull --rebase --autostash -X theirs -q origin main || git rebase --abort
+            sleep 5
+          done
+          echo "::error::could not push usernames.json after 3 attempts"
+          exit 1
+
+      # GITHUB_TOKEN commits do not trigger other workflows, so ask for the
+      # Pages deploy explicitly.
+      - name: Redeploy Pages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run pages.yml --ref main || echo "dispatch failed; next push will redeploy"
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "### username \`${{ inputs.username }}\` · ${{ inputs.database }}"
+            echo
+            python - <<'PY'
+          import json, pathlib
+          p = pathlib.Path("numtrail/web/static/usernames.json")
+          try:
+              d = json.loads(p.read_text())
+          except (OSError, ValueError) as exc:
+              print(f"_no usable result: {exc}_")
+              raise SystemExit(0)
+          print(f"{d['checked']} sites checked · {d['conclusive']} conclusive")
+          print()
+          print("| site | status | detail |")
+          print("| --- | --- | --- |")
+          for r in d["results"]:
+              if r["found"]:
+                  print(f"| {r['site']} | **found** | {r['url']} |")
+          print()
+          print("Everything that did not answer, and why:")
+          print()
+          print("| site | status | detail |")
+          print("| --- | --- | --- |")
+          for r in d["results"]:
+              if not r["found"] and r["status"] in ("blocked", "rate_limited", "error"):
+                  print(f"| {r['site']} | {r['status']} | {r['detail'][:70]} |")
+          PY
+          } >> "$GITHUB_STEP_SUMMARY"

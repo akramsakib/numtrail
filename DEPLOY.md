@@ -112,6 +112,22 @@ input. A web form can't trigger a workflow without putting a `workflow`-scoped
 token in the browser, which would be handing out write access to your repo — so
 GitHub's own Run workflow button is the query box.
 
+## Route 0b — username checks on GitHub (Sherlock / Maigret)
+
+Numbers use the snapshot workflow. Usernames use their own:
+
+1. **Actions → username → Run workflow**
+   ```
+   username   akram                 ← no @
+   database   sherlock | maigret
+   limit      blank = every vendored definition (478 or 3,278)
+   ```
+2. The runner writes `numtrail/web/static/usernames.json`, commits it, and
+   redeploys Pages. The run's own summary lists what was found, and what refused
+   to answer, with the reason.
+
+Locally: `numtrail-user akram --db sherlock --limit 40 --json out.json`.
+
 ## Route 3 — Pages only, no backend
 
 Allowed, but be clear on what you get: the page loads, shows all 16 probe cards,

@@ -67,7 +67,7 @@ def test_instagram_rate_limit_is_reported_not_swallowed():
                              settings=Settings(retries=0)))
     assert len(results) == 1
     assert results[0].status is Status.RATE_LIMITED
-    assert "proxy" in (results[0].detail or "")
+    assert "429" in (results[0].detail or "")
 
 
 def test_missing_key_short_circuits_without_network():

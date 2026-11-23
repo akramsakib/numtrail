@@ -36,12 +36,14 @@ dev = ["pytest>=8", "rich>=13"]
 [project.scripts]
 numtrail = "numtrail.cli:main"
 numtrail-web = "numtrail.web.server:main"
+numtrail-user = "numtrail.usercheck.__main__:main"
 
 [tool.setuptools.packages.find]
 include = ["numtrail*"]
 
 [tool.setuptools.package-data]
 numtrail = ["web/static/*", "web/*.js"]
+"numtrail.usercheck" = ["data/*.json.gz"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

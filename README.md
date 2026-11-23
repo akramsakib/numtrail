@@ -223,6 +223,45 @@ keeps the site a viewer rather than an open enumeration service.
 | Cloudflare Worker | any number | a Cloudflare account |
 | Render / Docker | any number | a Render account or a box |
 
+## The three cloned backends
+
+numtrail's probes are ports, not lookalikes. Each one keeps the upstream request
+and refuses the upstream's false answers.
+
+| upstream | what it checks | what we run | parity check |
+| --- | --- | --- | --- |
+| [ignorant](https://github.com/megadose/ignorant) (GPL-3.0) | phone numbers on 3 sites | `snapchat`, `instagram`, `amazon`, byte-identical requests | `tests/test_ignorant_port.py` |
+| [sherlock](https://github.com/sherlock-project/sherlock) (MIT) | usernames on 478 sites | `numtrail-user --db sherlock` | `tests/test_usercheck.py` |
+| [maigret](https://github.com/soxoj/maigret) (MIT) | usernames on 3,278 runnable sites | `numtrail-user --db maigret` | `tests/test_usercheck.py` |
+
+```bash
+numtrail-user --list                       # what is vendored, and from which commit
+numtrail-user akram --db sherlock          # 478 definitions, real requests
+numtrail-user akram --db maigret --limit 200
+```
+
+Phone numbers go through `numtrail`; usernames go through `numtrail-user`. They
+are not mixed, because "is @akram registered here" and "is +60123456789
+registered here" are different questions with different answers.
+
+Two upstream verdicts are deliberately **not** cloned, because they are wrong
+and we can show it:
+
+* **Amazon** — ignorant reads "no password prompt" as "this number has no
+  account". Amazon answers scripted claims with a captcha page; measured on
+  2026-11-23 the same 3,848-byte page came back for a real-looking number and for
+  `notarealaddress_zzz9911@example.com`. A captcha is reported as `blocked`.
+* **Instagram** — ignorant reads any 200 that is not `No users found` as "used".
+  A 429 body (`{"status":"fail","spam":true}`) is not an account.
+
+And one false-negative class is caught generically: Sherlock/Maigret infer
+"exists" from the absence of an error string, which marks every username as
+existing on client-rendered sites. Before reporting `found`, the runner asks the
+same site for an unused username and compares; if the pages are
+indistinguishable the result is "no signal", not "found". Measured live: GitHub
+200-vs-404 → found, Pinterest identical pages → no answer, Twitch's 17-character
+shell → no answer.
+
 ## The catalogue
 
 `numtrail/catalog.py` is the single source of truth for the 161 sites, grouped

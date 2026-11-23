@@ -62,3 +62,27 @@ def first_json(response: httpx.Response) -> dict:
     except Exception:  # noqa: BLE001 - HTML where JSON was promised
         return {}
     return data if isinstance(data, dict) else {}
+
+
+APP_SHELL_MARKERS = (
+    '<div id="react-root"', '<div id="root"></div>', "__next_data__",
+    '<div id="app"></div>', 'window.__nuxt__', '<app-root',
+)
+
+
+def looks_like_app_shell(text: str, *, min_text: int = 400) -> bool:
+    """True when the body is a client-rendered shell, not a server-rendered page.
+
+    Matters for "no error string on the page -> the account exists" checks: a SPA
+    returns the same shell for every profile URL, so that inference is worthless
+    there. Better to say nothing than to claim every username exists.
+    """
+    lowered = text.lower()
+    if not any(marker in lowered for marker in APP_SHELL_MARKERS):
+        return False
+    # strip scripts/styles, then see how much real text is left
+    import re
+    stripped = re.sub(r"<script.*?</script>|<style.*?</style>", " ", text,
+                      flags=re.S | re.I)
+    visible = re.sub(r"<[^>]+>", " ", stripped)
+    return len(" ".join(visible.split())) < min_text
