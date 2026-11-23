@@ -232,7 +232,7 @@ and refuses the upstream's false answers.
 | --- | --- | --- | --- |
 | [ignorant](https://github.com/megadose/ignorant) (GPL-3.0) | phone numbers on 3 sites | `snapchat`, `instagram`, `amazon`, byte-identical requests | `tests/test_ignorant_port.py` |
 | [sherlock](https://github.com/sherlock-project/sherlock) (MIT) | usernames on 478 sites | `numtrail-user --db sherlock` | `tests/test_usercheck.py` |
-| [maigret](https://github.com/soxoj/maigret) (MIT) | usernames on 3,278 runnable sites | `numtrail-user --db maigret` | `tests/test_usercheck.py` |
+| [maigret](https://github.com/soxoj/maigret) (MIT) | usernames on 3,268 runnable sites | `numtrail-user --db maigret` | `tests/test_usercheck.py` |
 
 ```bash
 numtrail-user --list                       # what is vendored, and from which commit

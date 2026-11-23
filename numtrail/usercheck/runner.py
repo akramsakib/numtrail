@@ -100,8 +100,7 @@ async def check_site(client: httpx.AsyncClient, site: SiteDef, username: str,
 
     try:
         if site.method == "POST":
-            payload = (site.payload or "{}").replace("{}", username)
-            response = await client.post(url, content=payload,
+            response = await client.post(url, content=site.body_for(username),
                                         headers={**browser_headers(), **(site.headers or {})},
                                         timeout=timeout)
         else:
@@ -113,6 +112,10 @@ async def check_site(client: httpx.AsyncClient, site: SiteDef, username: str,
     except httpx.HTTPError as exc:
         return UserResult(site.name, site.domain, Status.ERROR,
                           f"{type(exc).__name__}: {str(exc)[:80]}", url,
+                          time.perf_counter() - started, site.source)
+    except ValueError as exc:        # a template that is not a URL at all
+        return UserResult(site.name, site.domain, Status.ERROR,
+                          f"unusable definition: {str(exc)[:60]}", url,
                           time.perf_counter() - started, site.source)
 
     elapsed = time.perf_counter() - started
@@ -224,10 +227,9 @@ async def _control_check(client: httpx.AsyncClient, site: SiteDef, username: str
     control_headers = {**browser_headers(), **(site.headers or {})}
     try:
         if site.method == "POST":
-            control = await client.post(
-                control_url,
-                content=(site.payload or "{}").replace("{}", CONTROL_USERNAME),
-                headers=control_headers, timeout=timeout)
+            control = await client.post(control_url,
+                                        content=site.body_for(CONTROL_USERNAME),
+                                        headers=control_headers, timeout=timeout)
         else:
             control = await client.get(control_url, headers=control_headers,
                                        timeout=timeout)

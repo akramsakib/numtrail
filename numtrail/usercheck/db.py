@@ -12,14 +12,14 @@ Two things to be straight about:
   ``numtrail`` (phone, ignorant-style probes) and ``numtrail-user`` (this one).
 * Maigret's 11,071 sites are not 11,071 runnable definitions. 7,747 have no
   ``{username}`` placeholder (they are engine lookups or APIs) and 46 need a
-  per-site engine to get past anti-bot. 3,278 can be run as plain requests,
+  per-site engine to get past anti-bot. 3,268 can be run as plain requests,
   which is what is vendored here.
 
 Data is vendored, gzipped, with upstream commit and licence, so tests never hit
 the network and the numbers are reproducible:
 
     numtrail/usercheck/data/sherlock.json.gz   MIT, 478 sites
-    numtrail/usercheck/data/maigret.json.gz    MIT, 3,278 of 11,071
+    numtrail/usercheck/data/maigret.json.gz    MIT, 3,268 of 11,071
 """
 
 from __future__ import annotations
@@ -54,6 +54,17 @@ class SiteDef:
 
     def url_for(self, username: str) -> str:
         return self.url.replace("{}", username)
+
+    def body_for(self, username: str) -> str:
+        """POST payload with the username substituted.
+
+        Upstream stores this either as a JSON string or as an object, so both
+        shapes are accepted instead of exploding on one of them.
+        """
+        payload = self.payload if self.payload is not None else "{}"
+        if not isinstance(payload, str):
+            payload = json.dumps(payload)
+        return payload.replace("{}", username)
 
 
 def databases() -> list[str]:
@@ -91,6 +102,10 @@ def load(name: str = "sherlock") -> list[SiteDef]:
     sites: list[SiteDef] = []
     for site_name, v in raw["sites"].items():
         url = v["url"]
+        if not url.startswith(("http://", "https://")):
+            # a handful of upstream templates are broken ("/user.ddns.net");
+            # they cannot be requested at all, so they are not runnable
+            continue
         domain = (v.get("urlMain") or url).split("://")[-1].split("/")[0]
         if name == "sherlock":
             sites.append(SiteDef(

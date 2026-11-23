@@ -45,7 +45,7 @@ def run(s, handler, username="akram"):
 def test_both_databases_are_vendored_with_licences():
     info = db.stats()
     assert info["sherlock"]["count"] == 478
-    assert info["maigret"]["count"] == 3278
+    assert info["maigret"]["count"] == 3268
     for name in ("sherlock", "maigret"):
         assert info[name]["license"] == "MIT"
         assert info[name]["rev"], "record the upstream commit, so numbers are reproducible"
@@ -188,3 +188,18 @@ def test_post_sites_send_the_payload():
     assert run(s, handler).status is Status.FOUND
     assert bodies[0] == '{"username":"akram"}'
     assert bodies[1] == '{"username":"n0trailcontrol9913"}'
+
+
+def test_post_payloads_that_are_objects_do_not_explode():
+    """Sherlock stores request_payload as a JSON string or a dict, per site."""
+    bodies = []
+
+    def handler(request):
+        bodies.append(request.content.decode())
+        if "n0trailcontrol" in str(request.url):
+            return httpx.Response(404)
+        return httpx.Response(200, text=PROFILE)
+
+    s = site(method="POST", payload={"username": "{}", "remember": True})
+    assert run(s, handler).status is Status.FOUND
+    assert bodies[0] == '{"username": "akram", "remember": true}'

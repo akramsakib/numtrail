@@ -120,7 +120,7 @@ Numbers use the snapshot workflow. Usernames use their own:
    ```
    username   akram                 ← no @
    database   sherlock | maigret
-   limit      blank = every vendored definition (478 or 3,278)
+   limit      blank = every vendored definition (478 or 3,268)
    ```
 2. The runner writes `numtrail/web/static/usernames.json`, commits it, and
    redeploys Pages. The run's own summary lists what was found, and what refused
