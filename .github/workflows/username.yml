@@ -103,32 +103,50 @@ jobs:
 
       - name: Job summary
         if: always()
+        env:
+          INPUT_USERNAME: ${{ inputs.username }}
         run: |
           {
             echo "### username \`${{ inputs.username }}\` · ${{ inputs.database }}"
             echo
             python - <<'PY'
-          import json, pathlib
+          import json, os, pathlib
           p = pathlib.Path("numtrail/web/static/usernames.json")
+          asked = (os.environ.get("INPUT_USERNAME") or "").lstrip("@")
           try:
               d = json.loads(p.read_text())
           except (OSError, ValueError) as exc:
               print(f"_no usable result: {exc}_")
               raise SystemExit(0)
-          print(f"{d['checked']} sites checked · {d['conclusive']} conclusive")
+
+          runs = d.get("usernames") or {}
+          entry = runs.get(asked) or {}
+          if not entry:
+              # nothing for this name, but the file may still hold earlier runs
+              held = ", ".join(f"`@{n}`" for n in runs) or "_nothing yet_"
+              print(f"no entry for `{asked}`. The file holds: {held}")
+              raise SystemExit(0)
+
+          results = entry.get("results") or []
+          found = [r for r in results if r.get("found")]
+          print(f"{entry.get('checked', len(results))} sites · "
+                f"{len(found)} found · "
+                f"{sum(1 for r in results if r.get('status') == 'not_found')} not found · "
+                f"{sum(1 for r in results if r.get('status') not in ('found', 'not_found'))} gave no answer · "
+                f"{entry.get('database')} · `{entry.get('generated_at')}`")
+          if found:
+              print()
+              print("| found | url |")
+              print("| --- | --- |")
+              for r in found:
+                  print(f"| {r.get('site')} | {r.get('url')} |")
+          others = [n for n in runs if n != asked]
+          if others:
+              print()
+              print("Also in the committed file: "
+                    + ", ".join(f"`@{n}`" for n in others)
+                    + " — the site serves all of them.")
           print()
-          print("| site | status | detail |")
-          print("| --- | --- | --- |")
-          for r in d["results"]:
-              if r["found"]:
-                  print(f"| {r['site']} | **found** | {r['url']} |")
-          print()
-          print("Everything that did not answer, and why:")
-          print()
-          print("| site | status | detail |")
-          print("| --- | --- | --- |")
-          for r in d["results"]:
-              if not r["found"] and r["status"] in ("blocked", "rate_limited", "error"):
-                  print(f"| {r['site']} | {r['status']} | {r['detail'][:70]} |")
+          print(f"Open: https://akramsakib.github.io/numtrail/#@{asked}")
           PY
           } >> "$GITHUB_STEP_SUMMARY"
