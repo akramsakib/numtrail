@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T21:52:11Z",
+  "generated_at": "2026-11-26T08:40:21Z",
   "generator": "numtrail.snapshot",
   "watchlist_size": 4,
   "dispatch_size": 1,
@@ -10,7 +10,7 @@
       "iso": "MY",
       "pretty": "+60 123456789",
       "source": "watchlist",
-      "probed_at": "2026-11-25T21:52:05Z",
+      "probed_at": "2026-11-26T08:40:15Z",
       "conclusive": 1,
       "found": [
         "mcmc.gov.my"
@@ -30,9 +30,9 @@
           "domain": "amazon.com",
           "status": "error",
           "found": false,
-          "detail": "the claim page carried neither marker (HTTP 200, 136811 bytes); ignorant reports 'not used' here",
+          "detail": "the claim page carried neither marker (HTTP 200, 136826 bytes); ignorant reports 'not used' here",
           "semantic": "account_exists",
-          "elapsed": 0.603
+          "elapsed": 0.493
         },
         {
           "module": "bird",
@@ -50,7 +50,7 @@
           "found": false,
           "detail": "HTTP 429 from the lookup endpoint (ignorant calls this 'rate limit'); '{\"message\":\"\",\"status\":\"fail\"}'",
           "semantic": "account_exists",
-          "elapsed": 0.097
+          "elapsed": 0.145
         },
         {
           "module": "ipqualityscore",
@@ -113,7 +113,7 @@
           "found": false,
           "detail": "empty 200 body from validate_phone_number \u2014 the endpoint answered nothing (ignorant reports this as 'rate limit')",
           "semantic": "account_exists",
-          "elapsed": 0.604
+          "elapsed": 2.503
         },
         {
           "module": "telesign",
@@ -166,7 +166,7 @@
       "iso": "MY",
       "pretty": "+60 1112345678",
       "source": "watchlist",
-      "probed_at": "2026-11-25T21:52:07Z",
+      "probed_at": "2026-11-26T08:40:17Z",
       "conclusive": 1,
       "found": [
         "mcmc.gov.my"
@@ -186,9 +186,9 @@
           "domain": "amazon.com",
           "status": "error",
           "found": false,
-          "detail": "the claim page carried neither marker (HTTP 200, 136822 bytes); ignorant reports 'not used' here",
+          "detail": "the claim page carried neither marker (HTTP 200, 136804 bytes); ignorant reports 'not used' here",
           "semantic": "account_exists",
-          "elapsed": 0.617
+          "elapsed": 0.587
         },
         {
           "module": "bird",
@@ -206,7 +206,7 @@
           "found": false,
           "detail": "HTTP 429 from the lookup endpoint (ignorant calls this 'rate limit'); '{\"message\":\"\",\"status\":\"fail\"}'",
           "semantic": "account_exists",
-          "elapsed": 0.087
+          "elapsed": 0.158
         },
         {
           "module": "ipqualityscore",
@@ -269,7 +269,7 @@
           "found": false,
           "detail": "empty 200 body from validate_phone_number \u2014 the endpoint answered nothing (ignorant reports this as 'rate limit')",
           "semantic": "account_exists",
-          "elapsed": 0.748
+          "elapsed": 0.507
         },
         {
           "module": "telesign",
@@ -322,7 +322,7 @@
       "iso": "MY",
       "pretty": "+60 321123456",
       "source": "watchlist",
-      "probed_at": "2026-11-25T21:52:09Z",
+      "probed_at": "2026-11-26T08:40:19Z",
       "conclusive": 1,
       "found": [
         "mcmc.gov.my"
@@ -342,9 +342,9 @@
           "domain": "amazon.com",
           "status": "error",
           "found": false,
-          "detail": "the claim page carried neither marker (HTTP 200, 136780 bytes); ignorant reports 'not used' here",
+          "detail": "the claim page carried neither marker (HTTP 200, 136812 bytes); ignorant reports 'not used' here",
           "semantic": "account_exists",
-          "elapsed": 0.58
+          "elapsed": 0.46
         },
         {
           "module": "bird",
@@ -362,7 +362,7 @@
           "found": false,
           "detail": "HTTP 429 from the lookup endpoint (ignorant calls this 'rate limit'); '{\"message\":\"\",\"status\":\"fail\"}'",
           "semantic": "account_exists",
-          "elapsed": 0.086
+          "elapsed": 0.129
         },
         {
           "module": "ipqualityscore",
@@ -425,7 +425,7 @@
           "found": false,
           "detail": "empty 200 body from validate_phone_number \u2014 the endpoint answered nothing (ignorant reports this as 'rate limit')",
           "semantic": "account_exists",
-          "elapsed": 0.597
+          "elapsed": 0.662
         },
         {
           "module": "telesign",
@@ -478,7 +478,7 @@
       "iso": "US",
       "pretty": "+1 5550100",
       "source": "watchlist",
-      "probed_at": "2026-11-25T21:52:11Z",
+      "probed_at": "2026-11-26T08:40:21Z",
       "conclusive": 0,
       "found": [],
       "results": [
@@ -496,9 +496,9 @@
           "domain": "amazon.com",
           "status": "error",
           "found": false,
-          "detail": "the claim page carried neither marker (HTTP 200, 136785 bytes); ignorant reports 'not used' here",
+          "detail": "the claim page carried neither marker (HTTP 200, 136815 bytes); ignorant reports 'not used' here",
           "semantic": "account_exists",
-          "elapsed": 0.605
+          "elapsed": 0.55
         },
         {
           "module": "bird",
@@ -516,7 +516,7 @@
           "found": false,
           "detail": "HTTP 429 from the lookup endpoint (ignorant calls this 'rate limit'); '{\"message\":\"\",\"status\":\"fail\"}'",
           "semantic": "account_exists",
-          "elapsed": 0.104
+          "elapsed": 0.142
         },
         {
           "module": "ipqualityscore",
@@ -579,7 +579,7 @@
           "found": false,
           "detail": "empty 200 body from validate_phone_number \u2014 the endpoint answered nothing (ignorant reports this as 'rate limit')",
           "semantic": "account_exists",
-          "elapsed": 0.561
+          "elapsed": 0.497
         },
         {
           "module": "telesign",
